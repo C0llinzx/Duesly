@@ -17,6 +17,7 @@ import {
   Settings,
   CreditCard,
   Shield,
+  ArrowUpRight,
 } from "lucide-react"
 import d from "./mevolut.module.css"
 
@@ -250,6 +251,11 @@ export default function MevolutSidebar({ estateName, userName }: Props) {
             onNavigate={handleNavigate}
           />
         </nav>
+
+        <a href="/?landing=true" target="_blank" rel="noopener noreferrer" className={d.sidebarBackToSite}>
+          <ArrowUpRight size={14} strokeWidth={2} />
+          Back to site
+        </a>
 
       </aside>
 
