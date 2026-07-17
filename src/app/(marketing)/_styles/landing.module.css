@@ -35,11 +35,12 @@
 }
 .logo{
   font-size:19px;font-weight:650;letter-spacing:-.03em;
-  display:inline-flex;align-items:center;gap:9px;
+  display:inline-flex;align-items:center;gap:4px;
 }
 .logo-mark{
   width:26px;height:26px;border-radius:8px;
   display:grid;place-items:center;
+  transform:translateY(-2px);
 }
 .logo-mark img{width:26px;height:26px;border-radius:8px}
 .nav-links{display:flex;gap:4px;list-style:none;margin-left:8px}
