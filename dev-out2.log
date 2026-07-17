@@ -1,0 +1,23 @@
+▲ Next.js 16.2.9 (Turbopack)
+- Local:         http://localhost:3001
+- Network:       http://192.168.1.5:3001
+- Environments: .env.local, .env
+✓ Ready in 604ms
+- Experiments (use with caution):
+  · serverActions
+
+ GET /auth 200 in 685ms (next.js: 238ms, proxy.ts: 213ms, application-code: 234ms)
+ GET /auth 200 in 80ms (next.js: 11ms, proxy.ts: 6ms, application-code: 63ms)
+ GET / 200 in 199ms (next.js: 79ms, proxy.ts: 5ms, application-code: 115ms)
+ GET /auth 200 in 83ms (next.js: 8ms, proxy.ts: 7ms, application-code: 69ms)
+ GET /dashboard 200 in 318ms (next.js: 141ms, proxy.ts: 23ms, application-code: 154ms)
+ POST /auth 303 in 1652ms (next.js: 16ms, proxy.ts: 15ms, application-code: 1620ms)
+  └─ ƒ signupAction({"ok":false}, {}) in 1017ms src/lib/actions/auth.ts
+ GET /api/dashboard/zones 200 in 539ms (next.js: 14ms, proxy.ts: 476ms, application-code: 49ms)
+ GET /api/dashboard/collections 200 in 197ms (next.js: 25ms, proxy.ts: 74ms, application-code: 98ms)
+✓ Compiled in 249ms
+ GET /dashboard 200 in 544ms (next.js: 214ms, proxy.ts: 127ms, application-code: 203ms)
+✓ Compiled in 381ms
+ GET /dashboard 200 in 536ms (next.js: 199ms, proxy.ts: 128ms, application-code: 209ms)
+
+C:\Users\colli\Desktop\Duesly>

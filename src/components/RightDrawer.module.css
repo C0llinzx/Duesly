@@ -1,0 +1,150 @@
+.drawerScrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 900;
+  display: flex;
+  justify-content: flex-end;
+  animation: scrimIn 0.15s ease;
+}
+
+@keyframes scrimIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.drawerPanel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 420px;
+  max-width: 100vw;
+  background: var(--surface-card);
+  border-left: 0.5px solid var(--border);
+  z-index: 901;
+  display: flex;
+  flex-direction: column;
+  animation: drawerSlideIn 0.2s ease;
+}
+
+@keyframes drawerSlideIn {
+  from { transform: translateX(100%); }
+  to { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawerScrim {
+    animation: none;
+  }
+  .drawerPanel {
+    animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .drawerPanel {
+    width: 100vw;
+  }
+}
+
+.drawerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.drawerTitle {
+  margin: 0;
+  font-size: var(--font-size-text-md);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.drawerClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: background 0.1s, color 0.1s;
+}
+
+.drawerClose:hover {
+  background: var(--surface-elevated);
+  color: var(--text-primary);
+}
+
+.drawerBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.drawerFooter {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.drawerBtnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-text-xs);
+  font-weight: 500;
+  color: #fff;
+  background: var(--primary);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  font-family: inherit;
+}
+
+.drawerBtnPrimary:hover {
+  opacity: 0.9;
+}
+
+.drawerBtnPrimary:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.drawerBtnSecondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-text-xs);
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: color 0.15s;
+  font-family: inherit;
+}
+
+.drawerBtnSecondary:hover {
+  color: var(--text-primary);
+}
+
+.drawerBtnSecondary:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

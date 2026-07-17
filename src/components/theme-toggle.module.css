@@ -1,0 +1,47 @@
+.toggle {
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-container-lowest);
+  display: grid;
+  place-items: center;
+  color: var(--color-on-surface-variant);
+  transition: all .18s ease;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.toggle:hover {
+  border-color: var(--color-outline);
+  color: var(--color-on-surface);
+  transform: translateY(-1px);
+}
+
+.toggle svg {
+  width: 17px;
+  height: 17px;
+  position: absolute;
+  transition: opacity .2s ease, transform .3s ease;
+}
+
+.iconSun {
+  opacity: 0;
+  transform: rotate(-90deg) scale(.6);
+}
+
+.iconMoon {
+  opacity: 1;
+  transform: rotate(0) scale(1);
+}
+
+[data-theme="dark"] .iconSun {
+  opacity: 1;
+  transform: rotate(0) scale(1);
+}
+
+[data-theme="dark"] .iconMoon {
+  opacity: 0;
+  transform: rotate(90deg) scale(.6);
+}

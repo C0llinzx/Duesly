@@ -1,0 +1,369 @@
+/* =====================================================================
+   duesly-theme.css  —  GLOBAL stylesheet (NOT a CSS Module)
+   ALL rules scoped under .duesly-landing to avoid overwriting
+   the shared SellSnap tokens.css consumed by the dashboard.
+
+   Imported once in app/(marketing)/layout.tsx.
+
+   Theme authority = the data-theme attribute on <html> ONLY.
+   Default is dark; set before paint with the no-flash inline script.
+   ===================================================================== */
+
+/* ─── 1. MD3 ROLE TOKENS ─── */
+
+.duesly-landing {
+  /* Color Roles - Light Mode — Linear-inspired */
+  --color-primary: hsl(232, 55%, 60%);            /* #5E6AD2 */
+  --color-on-primary: hsl(0, 0%, 100%);
+  --color-primary-container: hsl(233, 80%, 95%);
+  --color-on-primary-container: hsl(233, 52%, 47%);
+  --color-secondary: hsl(232, 40%, 52%);
+  --color-on-secondary: hsl(0, 0%, 100%);
+  --color-secondary-container: hsl(233, 70%, 92%);
+  --color-on-secondary-container: hsl(231, 50%, 40%);
+  --color-tertiary: hsl(216, 87%, 58%);           /* cornflower */
+  --color-on-tertiary: hsl(0, 0%, 100%);
+  --color-tertiary-container: hsl(216, 90%, 92%);
+  --color-on-tertiary-container: hsl(216, 80%, 40%);
+  --color-error: hsl(358, 75%, 55%);
+  --color-on-error: hsl(0, 0%, 100%);
+  --color-error-container: hsl(359, 100%, 94%);
+  --color-on-error-container: hsl(358, 75%, 45%);
+  --color-background: hsl(0, 0%, 99%);
+  --color-on-background: hsl(0, 0%, 9%);
+  --color-surface: hsl(0, 0%, 100%);
+  --color-on-surface: hsl(0, 0%, 9%);
+  --color-surface-variant: hsl(0, 0%, 93%);
+  --color-on-surface-variant: hsl(0, 0%, 42%);
+  --color-outline: hsl(0, 0%, 91%);
+  --color-outline-variant: hsl(0, 0%, 90%);
+  --color-inverse-surface: hsl(0, 0%, 12%);
+  --color-inverse-on-surface: hsl(0, 0%, 96%);
+  --color-inverse-primary: hsl(233, 67%, 66%);
+  --color-surface-dim: hsl(0, 0%, 95%);
+  --color-surface-bright: hsl(0, 0%, 100%);
+  --color-surface-container-lowest: hsl(0, 0%, 100%);
+  --color-surface-container-low: hsl(0, 0%, 98%);
+  --color-surface-container: hsl(0, 0%, 96%);
+  --color-surface-container-high: hsl(0, 0%, 94%);
+  --color-surface-container-highest: hsl(0, 0%, 92%);
+
+  /* status — literal green/paid, red/owing */
+  --paid-text-l: hsl(140, 100%, 24%);
+  --paid-bg-l: hsl(143, 85%, 96%);
+  --paid-dot-l: hsl(140, 100%, 30%);
+  --owing-text-l: hsl(358, 75%, 46%);
+  --owing-bg-l: hsl(359, 100%, 95%);
+  --owing-dot-l: hsl(360, 90%, 52%);
+}
+
+[data-theme="dark"] .duesly-landing {
+  --color-primary: hsl(233, 67%, 66%);            /* #717CE2 */
+  --color-on-primary: hsl(0, 0%, 100%);
+  --color-primary-container: hsl(233, 40%, 24%);
+  --color-on-primary-container: hsl(233, 90%, 86%);
+  --color-secondary: hsl(233, 55%, 72%);
+  --color-on-secondary: hsl(233, 45%, 18%);
+  --color-secondary-container: hsl(233, 35%, 26%);
+  --color-on-secondary-container: hsl(233, 80%, 90%);
+  --color-tertiary: hsl(216, 87%, 65%);
+  --color-on-tertiary: hsl(216, 60%, 15%);
+  --color-tertiary-container: hsl(216, 45%, 26%);
+  --color-on-tertiary-container: hsl(216, 90%, 88%);
+  --color-error: hsl(358, 100%, 81%);
+  --color-on-error: hsl(357, 70%, 16%);
+  --color-error-container: hsl(357, 55%, 22%);
+  --color-on-error-container: hsl(358, 100%, 84%);
+  --color-background: hsl(220, 12%, 4%);          /* #08090a */
+  --color-on-background: hsl(0, 0%, 97%);
+  --color-surface: hsl(220, 12%, 4%);
+  --color-on-surface: hsl(0, 0%, 97%);
+  --color-surface-variant: hsl(220, 6%, 16%);
+  --color-on-surface-variant: hsl(220, 4%, 64%);
+  --color-outline: hsl(220, 7%, 20%);
+  --color-outline-variant: hsl(220, 8%, 15%);
+  --color-inverse-surface: hsl(0, 0%, 96%);
+  --color-inverse-on-surface: hsl(220, 12%, 8%);
+  --color-inverse-primary: hsl(232, 55%, 55%);
+  --color-surface-dim: hsl(220, 12%, 4%);
+  --color-surface-bright: hsl(220, 8%, 16%);
+  --color-surface-container-lowest: hsl(220, 12%, 5%);
+  --color-surface-container-low: hsl(220, 10%, 7%);
+  --color-surface-container: hsl(220, 9%, 9%);
+  --color-surface-container-high: hsl(220, 8%, 12%);
+  --color-surface-container-highest: hsl(220, 8%, 15%);
+
+  /* status */
+  --paid-text-d: hsl(150, 86%, 65%);
+  --paid-bg-d: hsl(150, 55%, 10%);
+  --paid-dot-d: hsl(150, 86%, 60%);
+  --owing-text-d: hsl(358, 100%, 81%);
+  --owing-bg-d: hsl(357, 45%, 14%);
+  --owing-dot-d: hsl(358, 95%, 74%);
+}
+
+/* ─── 2. SEMANTIC BRIDGE ─── */
+
+.duesly-landing {
+  --ink: var(--color-on-background);
+  --ink-2: var(--color-on-surface-variant);
+  --ink-3: color-mix(in srgb, var(--color-on-surface) 52%, transparent);
+
+  --bg: var(--color-background);
+  --card: var(--color-surface-container-lowest);
+  --panel: var(--color-surface-container-low);
+  --panel-2: var(--color-surface-container);
+
+  --line: var(--color-outline-variant);
+  --line-strong: color-mix(in srgb, var(--color-on-surface) 22%, transparent);
+
+  --primary: var(--color-primary);
+  --primary-strong: var(--color-on-primary-container);
+  --primary-hover: color-mix(in srgb, var(--color-primary) 82%, black);
+  --primary-tint: color-mix(in srgb, var(--color-primary) 9%, var(--color-surface));
+  --primary-tint-2: color-mix(in srgb, var(--color-primary) 20%, var(--color-surface));
+  --on-primary: var(--color-on-primary);
+  --grad-end: var(--color-tertiary);
+
+  --paid-text: var(--paid-text-l);
+  --paid-bg: var(--paid-bg-l);
+  --paid-dot: var(--paid-dot-l);
+  --owing-text: var(--owing-text-l);
+  --owing-bg: var(--owing-bg-l);
+  --owing-dot: var(--owing-dot-l);
+
+  --font-sans: 'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --font-mono: 'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
+
+  --r-sm: 8px; --r-md: 12px; --r-lg: 18px; --r-xl: 24px; --r-pill: 999px;
+
+  --shadow-sm: 0 1px 2px hsl(234 16% 12% / .05);
+  --shadow-md: 0 2px 8px hsl(234 16% 12% / .06),0 12px 32px hsl(234 16% 12% / .07);
+  --shadow-lg: 0 4px 12px hsl(234 16% 12% / .06),0 24px 64px -12px hsl(234 16% 12% / .14);
+  --glow: hsl(237 89% 63% / .12);
+  --grid-line: hsl(0 0% 0% / .022);
+  --stage-photo: linear-gradient(150deg, hsl(233 40% 16%), hsl(226 34% 8%));
+
+  --nav-h: 64px;
+  --maxw: 1120px;
+}
+
+[data-theme="dark"] .duesly-landing {
+  --card: var(--color-surface-container-low);
+  --panel: var(--color-surface-container);
+  --panel-2: var(--color-surface-container-high);
+  --primary-hover: color-mix(in srgb, var(--color-primary) 84%, white);
+  --primary-strong: var(--color-primary);
+  --paid-text: var(--paid-text-d);
+  --paid-bg: var(--paid-bg-d);
+  --paid-dot: var(--paid-dot-d);
+  --owing-text: var(--owing-text-d);
+  --owing-bg: var(--owing-bg-d);
+  --owing-dot: var(--owing-dot-d);
+  --shadow-sm: 0 1px 2px hsl(234 16% 3% / .4);
+  --shadow-md: 0 2px 8px hsl(234 16% 3% / .45),0 12px 32px hsl(234 16% 3% / .5);
+  --shadow-lg: 0 4px 12px hsl(234 16% 3% / .5),0 24px 64px -12px hsl(234 16% 3% / .7);
+  --glow: hsl(237 89% 63% / .16);
+  --grid-line: hsl(0 0% 100% / .018);
+}
+
+/* ─── 3. BASE ─── */
+
+/* Overscroll & root background — outside .duesly-landing because html/body
+   can't be inside the scoping wrapper. These values match Duesly's palettes.
+   Safe to set globally because the dashboard hardcodes the same dark bg.
+   scroll-behavior & overscroll-behavior give the Apple-like rubbery feel. */
+html {
+  scroll-behavior: smooth;
+  overscroll-behavior-y: auto;
+}
+[data-theme="dark"] html,
+[data-theme="dark"] body {
+  background: hsl(220, 12%, 4%);  /* #08090A — matches dashboard dark bg */
+}
+[data-theme="light"] html,
+[data-theme="light"] body {
+  background: hsl(0, 0%, 99%);
+}
+
+.duesly-landing {
+  min-height: 100dvh;
+  background: var(--bg);
+  font-family: var(--font-sans);
+  font-optical-sizing: auto;
+  color: var(--ink);
+  line-height: 1.5;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color .25s ease, color .25s ease;
+}
+
+.duesly-landing *,
+.duesly-landing *::before,
+.duesly-landing *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.duesly-landing ::selection {
+  background: var(--primary-tint-2);
+  color: var(--primary-strong);
+}
+
+.duesly-landing img,
+.duesly-landing svg {
+  display: block;
+}
+
+.duesly-landing button {
+  font: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+}
+
+.duesly-landing a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.duesly-landing .container {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.duesly-landing .eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.duesly-landing .mono-chip {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+/* ─── 4. BUTTONS ─── */
+
+.duesly-landing .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 22px;
+  border-radius: var(--r-pill);
+  font-size: 14.5px;
+  font-weight: 550;
+  letter-spacing: -.006em;
+  transition: all .18s cubic-bezier(.4,0,.2,1);
+  white-space: nowrap;
+}
+
+.duesly-landing .btn-primary {
+  background: var(--primary);
+  color: var(--color-on-primary);
+  box-shadow: inset 0 1px 0 hsl(0 0% 100% / .15), 0 1px 2px hsl(237 89% 40% / .3);
+}
+
+[data-theme="dark"] .duesly-landing .btn-primary {
+  color: #fff;
+}
+
+.duesly-landing .btn-primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: inset 0 1px 0 hsl(0 0% 100% / .15), 0 4px 14px var(--glow);
+}
+
+.duesly-landing .btn-primary:active {
+  transform: translateY(0);
+}
+
+.duesly-landing .btn-secondary {
+  background: var(--card);
+  color: var(--ink);
+  border: 1px solid var(--line-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+.duesly-landing .btn-secondary:hover {
+  border-color: var(--ink-3);
+  transform: translateY(-1px);
+}
+
+.duesly-landing .btn-ghost-light {
+  background: hsl(0 0% 100% / .14);
+  color: #fff;
+  border: 1px solid hsl(0 0% 100% / .28);
+  backdrop-filter: blur(4px);
+}
+
+.duesly-landing .btn-ghost-light:hover {
+  background: hsl(0 0% 100% / .22);
+}
+
+.duesly-landing .btn-lg {
+  height: 50px;
+  padding: 0 28px;
+  font-size: 15.5px;
+}
+
+.duesly-landing .btn .arrow {
+  transition: transform .18s ease;
+}
+
+.duesly-landing .btn:hover .arrow {
+  transform: translateX(3px);
+}
+
+.duesly-landing :focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ─── 5. REVEAL + REDUCED MOTION ─── */
+
+.duesly-landing .reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity .6s ease, transform .6s cubic-bezier(.3,.7,.3,1);
+}
+
+.duesly-landing .reveal.in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .duesly-landing *,
+  .duesly-landing *::before,
+  .duesly-landing *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .duesly-landing .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}

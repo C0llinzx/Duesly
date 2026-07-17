@@ -1,0 +1,206 @@
+/* ─── Toast viewport (fixed, top-right stack) ─── */
+
+.toastViewport {
+  position: fixed;
+  top: 72px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 9999;
+  pointer-events: none;
+  max-width: 360px;
+  width: 100%;
+}
+
+@media (max-width: 480px) {
+  .toastViewport {
+    right: 12px;
+    left: 12px;
+    max-width: none;
+  }
+}
+
+/* ─── Toast card ─── */
+
+.toastCard {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 0.5px solid var(--border-strong);
+  background: var(--surface-card);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  position: relative;
+}
+
+/* ─── Status icon ─── */
+
+.toastIcon {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+
+.success .toastIcon {
+  background: var(--success-subtle);
+  color: var(--success);
+}
+
+.error .toastIcon {
+  background: var(--error-subtle);
+  color: var(--error);
+}
+
+.warning .toastIcon {
+  background: rgba(245, 165, 36, 0.12);
+  color: var(--warning);
+}
+
+.info .toastIcon {
+  background: var(--primary-subtle);
+  color: var(--primary);
+}
+
+.loading .toastIcon {
+  background: var(--primary-subtle);
+  color: var(--primary);
+}
+
+/* ─── Spinner animation ─── */
+
+.toastSpinner {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Body ─── */
+
+.toastBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.toastTitle {
+  font-size: var(--font-size-text-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: var(--font-line-height-text-sm);
+}
+
+.toastDesc {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.toastAction {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: var(--font-size-text-xs);
+  font-weight: 600;
+  color: var(--primary);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.toastAction:hover {
+  text-decoration: underline;
+}
+
+/* ─── Dismiss X ─── */
+
+.toastDismiss {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.1s, color 0.1s;
+  margin-top: 2px;
+}
+
+.toastDismiss:hover {
+  background: var(--surface-elevated);
+  color: var(--text-primary);
+}
+
+/* ─── Enter / Exit animations ─── */
+
+.toastEnter {
+  animation: toastSlideIn 0.25s ease;
+}
+
+.toastExit {
+  animation: toastSlideOut 0.2s ease forwards;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes toastSlideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+}
+
+/* ─── Reduced motion ─── */
+
+@media (prefers-reduced-motion: reduce) {
+  .toastEnter {
+    animation: toastFadeIn 0.15s ease;
+  }
+
+  .toastExit {
+    animation: toastFadeOut 0.15s ease forwards;
+  }
+
+  .toastSpinner {
+    animation: none;
+  }
+}
+
+@keyframes toastFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes toastFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}

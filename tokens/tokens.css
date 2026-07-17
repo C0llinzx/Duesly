@@ -1,0 +1,222 @@
+/* Generated Design Tokens CSS variables */
+
+:root {
+  --font-size-display-2xl: 72px;
+  --font-text-decoration-display-2xl: none;
+  --font-family-display-2xl: "Inter", sans-serif;
+  --font-weight-display-2xl: 900;
+  --font-style-display-2xl: normal;
+  --font-stretch-display-2xl: normal;
+  --font-letter-spacing-display-2xl: -1px;
+  --font-line-height-display-2xl: 90px;
+  --font-paragraph-indent-display-2xl: 0px;
+  --font-paragraph-spacing-display-2xl: 0px;
+  --font-text-case-display-2xl: none;
+  --font-size-display-2xl-dislay-2xl: 72px;
+  --font-text-decoration-display-2xl-dislay-2xl: none;
+  --font-family-display-2xl-dislay-2xl: "Inter", sans-serif;
+  --font-weight-display-2xl-dislay-2xl: 400;
+  --font-style-display-2xl-dislay-2xl: normal;
+  --font-stretch-display-2xl-dislay-2xl: normal;
+  --font-letter-spacing-display-2xl-dislay-2xl: -1px;
+  --font-line-height-display-2xl-dislay-2xl: 90px;
+  --font-paragraph-indent-display-2xl-dislay-2xl: 0px;
+  --font-paragraph-spacing-display-2xl-dislay-2xl: 0px;
+  --font-text-case-display-2xl-dislay-2xl: none;
+  --font-size-display-xl: 60px;
+  --font-text-decoration-display-xl: none;
+  --font-family-display-xl: "Inter", sans-serif;
+  --font-weight-display-xl: 700;
+  --font-style-display-xl: normal;
+  --font-stretch-display-xl: normal;
+  --font-letter-spacing-display-xl: -1px;
+  --font-line-height-display-xl: 72px;
+  --font-paragraph-indent-display-xl: 0px;
+  --font-paragraph-spacing-display-xl: 0px;
+  --font-text-case-display-xl: none;
+  --font-size-display-lg: 40px;
+  --font-text-decoration-display-lg: none;
+  --font-family-display-lg: "Inter", sans-serif;
+  --font-weight-display-lg: 400;
+  --font-style-display-lg: normal;
+  --font-stretch-display-lg: normal;
+  --font-letter-spacing-display-lg: -1px;
+  --font-line-height-display-lg: 48px;
+  --font-paragraph-indent-display-lg: 0px;
+  --font-paragraph-spacing-display-lg: 0px;
+  --font-text-case-display-lg: none;
+  --font-size-display-md: 32px;
+  --font-text-decoration-display-md: none;
+  --font-family-display-md: "Inter", sans-serif;
+  --font-weight-display-md: 400;
+  --font-style-display-md: normal;
+  --font-stretch-display-md: normal;
+  --font-letter-spacing-display-md: -1px;
+  --font-line-height-display-md: 40px;
+  --font-paragraph-indent-display-md: 0px;
+  --font-paragraph-spacing-display-md: 0px;
+  --font-text-case-display-md: none;
+  --font-size-display-sm: 30px;
+  --font-text-decoration-display-sm: none;
+  --font-family-display-sm: "Inter", sans-serif;
+  --font-weight-display-sm: 400;
+  --font-style-display-sm: normal;
+  --font-stretch-display-sm: normal;
+  --font-letter-spacing-display-sm: -1px;
+  --font-line-height-display-sm: 38px;
+  --font-paragraph-indent-display-sm: 0px;
+  --font-paragraph-spacing-display-sm: 0px;
+  --font-text-case-display-sm: none;
+  --font-size-display-xs: 24px;
+  --font-text-decoration-display-xs: none;
+  --font-family-display-xs: "Inter", sans-serif;
+  --font-weight-display-xs: 400;
+  --font-style-display-xs: normal;
+  --font-stretch-display-xs: normal;
+  --font-letter-spacing-display-xs: 0px;
+  --font-line-height-display-xs: 32px;
+  --font-paragraph-indent-display-xs: 0px;
+  --font-paragraph-spacing-display-xs: 0px;
+  --font-text-case-display-xs: none;
+  --font-size-text-xl: 20px;
+  --font-text-decoration-text-xl: none;
+  --font-family-text-xl: "Inter", sans-serif;
+  --font-weight-text-xl: 400;
+  --font-style-text-xl: normal;
+  --font-stretch-text-xl: normal;
+  --font-letter-spacing-text-xl: 0px;
+  --font-line-height-text-xl: 30px;
+  --font-paragraph-indent-text-xl: 0px;
+  --font-paragraph-spacing-text-xl: 0px;
+  --font-text-case-text-xl: none;
+  --font-size-text-l-text-xl: 18px;
+  --font-text-decoration-text-l-text-xl: none;
+  --font-family-text-l-text-xl: "Inter", sans-serif;
+  --font-weight-text-l-text-xl: 400;
+  --font-style-text-l-text-xl: normal;
+  --font-stretch-text-l-text-xl: normal;
+  --font-letter-spacing-text-l-text-xl: 0px;
+  --font-line-height-text-l-text-xl: 28px;
+  --font-paragraph-indent-text-l-text-xl: 0px;
+  --font-paragraph-spacing-text-l-text-xl: 0px;
+  --font-text-case-text-l-text-xl: none;
+  --font-size-text-md: 16px;
+  --font-text-decoration-text-md: none;
+  --font-family-text-md: "Inter", sans-serif;
+  --font-weight-text-md: 400;
+  --font-style-text-md: normal;
+  --font-stretch-text-md: normal;
+  --font-letter-spacing-text-md: 0px;
+  --font-line-height-text-md: 24px;
+  --font-paragraph-indent-text-md: 0px;
+  --font-paragraph-spacing-text-md: 0px;
+  --font-text-case-text-md: none;
+  --font-size-text-sm: 14px;
+  --font-text-decoration-text-sm: none;
+  --font-family-text-sm: "Inter", sans-serif;
+  --font-weight-text-sm: 400;
+  --font-style-text-sm: normal;
+  --font-stretch-text-sm: normal;
+  --font-letter-spacing-text-sm: 0px;
+  --font-line-height-text-sm: 20px;
+  --font-paragraph-indent-text-sm: 0px;
+  --font-paragraph-spacing-text-sm: 0px;
+  --font-text-case-text-sm: none;
+  --font-size-text-xs: 12px;
+  --font-text-decoration-text-xs: none;
+  --font-family-text-xs: "Inter", sans-serif;
+  --font-weight-text-xs: 400;
+  --font-style-text-xs: normal;
+  --font-stretch-text-xs: normal;
+  --font-letter-spacing-text-xs: 0px;
+  --font-line-height-text-xs: 18px;
+  --font-paragraph-indent-text-xs: 0px;
+  --font-paragraph-spacing-text-xs: 0px;
+  --font-text-case-text-xs: none;
+  --font-size-text-xxs: 10px;
+  --font-text-decoration-text-xxs: none;
+  --font-family-text-xxs: "Inter", sans-serif;
+  --font-weight-text-xxs: 400;
+  --font-style-text-xxs: normal;
+  --font-stretch-text-xxs: normal;
+  --font-letter-spacing-text-xxs: 0px;
+  --font-line-height-text-xxs: 15px;
+  --font-paragraph-indent-text-xxs: 0px;
+  --font-paragraph-spacing-text-xxs: 0px;
+  --font-text-case-text-xxs: none;
+
+  /* Color Roles - Light Mode — Linear-inspired (matches duesly-theme.css) */
+  --color-primary: hsl(232, 55%, 60%);            /* #5E6AD2 */
+  --color-on-primary: hsl(0, 0%, 100%);
+  --color-primary-container: hsl(233, 80%, 95%);
+  --color-on-primary-container: hsl(233, 52%, 47%);
+  --color-secondary: hsl(232, 40%, 52%);
+  --color-on-secondary: hsl(0, 0%, 100%);
+  --color-secondary-container: hsl(233, 70%, 92%);
+  --color-on-secondary-container: hsl(231, 50%, 40%);
+  --color-tertiary: hsl(216, 87%, 58%);           /* cornflower */
+  --color-on-tertiary: hsl(0, 0%, 100%);
+  --color-tertiary-container: hsl(216, 90%, 92%);
+  --color-on-tertiary-container: hsl(216, 80%, 40%);
+  --color-error: hsl(358, 75%, 55%);
+  --color-on-error: hsl(0, 0%, 100%);
+  --color-error-container: hsl(359, 100%, 94%);   /* mistyrose */
+  --color-on-error-container: hsl(358, 75%, 45%); /* red */
+  --color-background: hsl(0, 0%, 99%);            /* white-300 */
+  --color-on-background: hsl(0, 0%, 9%);          /* near-black */
+  --color-surface: hsl(0, 0%, 100%);
+  --color-on-surface: hsl(0, 0%, 9%);
+  --color-surface-variant: hsl(0, 0%, 93%);       /* whitesmoke */
+  --color-on-surface-variant: hsl(0, 0%, 42%);    /* dimgray */
+  --color-outline: hsl(0, 0%, 91%);               /* gainsboro */
+  --color-outline-variant: hsl(0, 0%, 90%);
+  --color-inverse-surface: hsl(0, 0%, 12%);
+  --color-inverse-on-surface: hsl(0, 0%, 96%);
+  --color-inverse-primary: hsl(233, 67%, 66%);
+  --color-surface-dim: hsl(0, 0%, 95%);
+  --color-surface-bright: hsl(0, 0%, 100%);
+  --color-surface-container-lowest: hsl(0, 0%, 100%);
+  --color-surface-container-low: hsl(0, 0%, 98%);
+  --color-surface-container: hsl(0, 0%, 96%);
+  --color-surface-container-high: hsl(0, 0%, 94%);
+  --color-surface-container-highest: hsl(0, 0%, 92%);
+}
+
+/* ─── Dark mode is controlled by data-theme="dark" on <html>, never by OS preference ─── */
+
+.dark, [data-theme="dark"] {
+  --color-primary: hsl(233, 67%, 66%);            /* #717CE2 — Linear logo purple */
+  --color-on-primary: hsl(0, 0%, 100%);
+  --color-primary-container: hsl(233, 40%, 24%);
+  --color-on-primary-container: hsl(233, 90%, 86%);
+  --color-secondary: hsl(233, 55%, 72%);
+  --color-on-secondary: hsl(233, 45%, 18%);
+  --color-secondary-container: hsl(233, 35%, 26%);
+  --color-on-secondary-container: hsl(233, 80%, 90%);
+  --color-tertiary: hsl(216, 87%, 65%);           /* cornflowerblue */
+  --color-on-tertiary: hsl(216, 60%, 15%);
+  --color-tertiary-container: hsl(216, 45%, 26%);
+  --color-on-tertiary-container: hsl(216, 90%, 88%);
+  --color-error: hsl(358, 100%, 81%);             /* lightcoral */
+  --color-on-error: hsl(357, 70%, 16%);
+  --color-error-container: hsl(357, 55%, 22%);
+  --color-on-error-container: hsl(358, 100%, 84%);
+  --color-background: hsl(220, 12%, 4%);          /* #08090a */
+  --color-on-background: hsl(0, 0%, 97%);
+  --color-surface: hsl(220, 12%, 4%);
+  --color-on-surface: hsl(0, 0%, 97%);
+  --color-surface-variant: hsl(220, 6%, 16%);
+  --color-on-surface-variant: hsl(220, 4%, 64%);  /* silver/darkgray */
+  --color-outline: hsl(220, 7%, 20%);
+  --color-outline-variant: hsl(220, 8%, 15%);     /* subtle hairline */
+  --color-inverse-surface: hsl(0, 0%, 96%);
+  --color-inverse-on-surface: hsl(220, 12%, 8%);
+  --color-inverse-primary: hsl(232, 55%, 55%);
+  --color-surface-dim: hsl(220, 12%, 4%);
+  --color-surface-bright: hsl(220, 8%, 16%);
+  --color-surface-container-lowest: hsl(220, 12%, 5%);
+  --color-surface-container-low: hsl(220, 10%, 7%);
+  --color-surface-container: hsl(220, 9%, 9%);
+  --color-surface-container-high: hsl(220, 8%, 12%);
+  --color-surface-container-highest: hsl(220, 8%, 15%);
+}

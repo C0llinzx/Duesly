@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String       @id @default(uuid()) @db.Uuid
+  name         String
+  email        String       @unique
+  phone        String
+  passwordHash String       @map("password_hash")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+  estate       Estate?
+
+  @@map("users")
+}
+
+model Estate {
+  id        String       @id @default(uuid()) @db.Uuid
+  name      String
+  adminId   String       @unique @map("admin_id") @db.Uuid
+  admin     User         @relation(fields: [adminId], references: [id])
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+  zones     Zone[]
+  collections Collection[]
+
+  @@map("estates")
+}
+
+model Zone {
+  id        String   @id @default(uuid()) @db.Uuid
+  estateId  String   @map("estate_id") @db.Uuid
+  estate    Estate   @relation(fields: [estateId], references: [id], onDelete: Cascade)
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  units     Unit[]
+
+  @@unique([estateId, name])
+  @@map("zones")
+}
+
+model Unit {
+  id            String   @id @default(uuid()) @db.Uuid
+  zoneId        String   @map("zone_id") @db.Uuid
+  zone          Zone     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  label         String
+  address       String?  @map("address")
+  residentName  String?  @map("resident_name")
+  phone1        String?
+  phone2        String?
+  residentEmail String?  @map("resident_email")
+  occupancyType String?  @map("occupancy_type") @default("owner")
+  status        String   @default("active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  payments      Payment[]
+  assignments   DueAssignment[]
+
+  @@unique([zoneId, label])
+  @@map("units")
+}
+
+model Collection {
+  id         String           @id @default(uuid()) @db.Uuid
+  estateId   String           @map("estate_id") @db.Uuid
+  estate     Estate           @relation(fields: [estateId], references: [id], onDelete: Cascade)
+  slug       String           @unique
+  title      String
+  amountKobo Int              @map("amount_kobo")
+  dueDate    DateTime         @map("due_date")
+  status     String           @default("active")
+  createdAt  DateTime         @default(now()) @map("created_at")
+  updatedAt  DateTime         @updatedAt @map("updated_at")
+  payments   Payment[]
+  assignments DueAssignment[]
+
+  @@map("collections")
+}
+
+model Payment {
+  id           String        @id @default(uuid()) @db.Uuid
+  collectionId String        @map("collection_id") @db.Uuid
+  collection   Collection    @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  unitId       String        @map("unit_id") @db.Uuid
+  unit         Unit          @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  amountKobo   Int           @map("amount_kobo")
+  feeKobo      Int           @default(0) @map("fee_kobo")
+  method       String        @default("online")
+  status       String        @default("pending")
+  gatewayTxRef String?       @unique @map("gateway_tx_ref")
+  gatewayTxId  String?       @map("gateway_tx_id")
+  paidAt       DateTime?     @map("paid_at")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  logs         PaymentLog[]
+
+  @@unique([collectionId, unitId])
+  @@map("payments")
+}
+
+model DueAssignment {
+  id           String      @id @default(uuid()) @db.Uuid
+  collectionId String      @map("collection_id") @db.Uuid
+  unitId       String      @map("unit_id") @db.Uuid
+  amountKobo   Int?        @map("amount_kobo")
+  excluded     Boolean     @default(false)
+  collection   Collection  @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  unit         Unit        @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  createdAt    DateTime    @default(now()) @map("created_at")
+
+  @@unique([collectionId, unitId])
+  @@map("due_assignments")
+}
+
+model PaymentLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  paymentId String   @map("payment_id") @db.Uuid
+  payment   Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  event     String
+  metadata  Json?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("payment_logs")
+}
