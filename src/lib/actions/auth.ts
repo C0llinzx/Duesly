@@ -25,7 +25,8 @@ export async function loginAction(_prev: ActionResult, formData: FormData): Prom
     const valid = await verifyPassword(password, user.passwordHash)
     if (!valid) return { ok: false, errors: { _form: ["Email or password is incorrect"] } }
     await createSession({ userId: user.id, email: user.email })
-  } catch {
+  } catch (err) {
+    console.error("Login action error:", err)
     return { ok: false, errors: { _form: ["Email or password is incorrect"] } }
   }
   redirect("/dashboard")
@@ -69,7 +70,8 @@ export async function signupAction(_prev: ActionResult, formData: FormData): Pro
       },
     })
     await createSession({ userId: user.id, email: user.email })
-  } catch {
+  } catch (err) {
+    console.error("Signup action error:", err)
     return { ok: false, errors: { _form: ["Something went wrong. Please try again."] } }
   }
   redirect("/dashboard")
