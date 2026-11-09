@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getSession } from "@/lib/auth"
 import { prisma } from "@/lib/db"
+import { getDueAssignmentMap, resolveEffectiveDue } from "@/lib/dues"
 
 export async function GET(
   _request: NextRequest,
@@ -35,15 +36,24 @@ export async function GET(
       paidMap.set(p.unitId, true)
     }
 
-    const units = user.estate.zones.flatMap((zone) =>
-      zone.units.map((unit) => ({
-        id: unit.id,
-        label: unit.label,
-        residentName: unit.residentName,
-        phone1: unit.phone1,
-        paid: paidMap.has(unit.id),
-      }))
-    )
+    const assignmentMap = await getDueAssignmentMap(id)
+
+    const units = user.estate.zones
+      .flatMap((zone) =>
+        zone.units.map((unit) => {
+          const due = resolveEffectiveDue(collection.amountKobo, assignmentMap.get(unit.id))
+          return {
+            id: unit.id,
+            label: unit.label,
+            residentName: unit.residentName,
+            phone1: unit.phone1,
+            paid: paidMap.has(unit.id),
+            amountKobo: due.amountKobo,
+            excluded: due.excluded,
+          }
+        })
+      )
+      .filter((u) => !u.excluded)
 
     return NextResponse.json({ collection, units })
   } catch (error) {

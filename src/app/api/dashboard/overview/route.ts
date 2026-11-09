@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { getSession } from "@/lib/auth"
 import { prisma } from "@/lib/db"
+import { getDueAssignmentMap, resolveEffectiveDue } from "@/lib/dues"
 
 export async function GET() {
   const session = await getSession()
@@ -17,8 +18,11 @@ export async function GET() {
   const activeCollection = estate.collections[0] ?? null
 
   // Get payment status for each unit
-  const unitPayments: Map<string, { paid: boolean; paidAt: Date | null }> = new Map()
+  const unitPayments: Map<string, { paid: boolean; paidAt: Date | null; amountKobo: number }> = new Map()
   const payments: { unitId: string; paidAt: Date | null; amountKobo: number }[] = []
+  const assignmentMap: Map<string, { excluded: boolean; amountKobo: number | null }> = activeCollection
+    ? await getDueAssignmentMap(activeCollection.id)
+    : new Map()
   if (activeCollection) {
     const rows = await prisma.payment.findMany({
       where: { collectionId: activeCollection.id, status: "success" },
@@ -26,15 +30,10 @@ export async function GET() {
       orderBy: { paidAt: "asc" },
     })
     for (const p of rows) {
-      unitPayments.set(p.unitId, { paid: true, paidAt: p.paidAt })
+      unitPayments.set(p.unitId, { paid: true, paidAt: p.paidAt, amountKobo: p.amountKobo })
       payments.push(p)
     }
   }
-
-  // Build zones with units and payment status
-  const totalUnits = estate.zones.reduce((s, z) => s + z.units.length, 0)
-  let totalPaid = 0
-  let totalCollected = 0
 
   // Fetch recent payments for the transactions widget
   const estateZoneIds = estate.zones.map((z) => z.id)
@@ -45,24 +44,40 @@ export async function GET() {
     include: { unit: true },
   })
 
+  // Build zones with units and payment status — units excluded from the active collection
+  // (DueAssignment.excluded) don't count toward this collection's totals or owing list.
+  let totalUnits = 0
+  let totalPaid = 0
+  let totalCollected = 0
+
   const dashboardZones = estate.zones.map((zone) => {
-    const zoneUnits = zone.units.map((unit) => {
-      const payment = unitPayments.get(unit.id)
-      const paid = payment?.paid ?? false
-      if (paid) {
+    const zoneUnits = zone.units
+      .map((unit) => {
+        const due = activeCollection ? resolveEffectiveDue(activeCollection.amountKobo, assignmentMap.get(unit.id)) : { amountKobo: 0, excluded: false }
+        const payment = unitPayments.get(unit.id)
+        const paid = payment?.paid ?? false
+        return {
+          id: unit.id,
+          label: unit.label,
+          address: unit.address,
+          residentName: unit.residentName,
+          phone1: unit.phone1,
+          paid,
+          paidAt: payment?.paidAt ?? null,
+          amountKobo: due.amountKobo,
+          excluded: due.excluded,
+        }
+      })
+      .filter((u) => !u.excluded)
+
+    for (const u of zoneUnits) {
+      totalUnits++
+      if (u.paid) {
         totalPaid++
-        totalCollected += activeCollection?.amountKobo ?? 0
+        totalCollected += unitPayments.get(u.id)?.amountKobo ?? u.amountKobo
       }
-      return {
-      id: unit.id,
-                        label: unit.label,
-                        address: unit.address,
-        residentName: unit.residentName,
-        phone1: unit.phone1,
-        paid,
-        paidAt: payment?.paidAt ?? null,
-      }
-    })
+    }
+
     const zonePaid = zoneUnits.filter((u) => u.paid).length
     return {
       id: zone.id,

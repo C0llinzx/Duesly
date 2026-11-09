@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db"
 import { calculateFee, getFeeDisplay, maskEmail } from "@/lib/fees"
+import { resolveEffectiveDue } from "@/lib/dues"
 import DirectPayFlow from "./DirectPayFlow"
 
 export default async function DirectPayPage({ params }: { params: Promise<{ slug: string; unitId: string }> }) {
@@ -51,11 +52,30 @@ export default async function DirectPayPage({ params }: { params: Promise<{ slug
     )
   }
 
-  const payment = await prisma.payment.findUnique({
-    where: { collectionId_unitId: { collectionId: collection.id, unitId: unit.id } },
-  })
+  const [payment, assignment] = await Promise.all([
+    prisma.payment.findUnique({
+      where: { collectionId_unitId: { collectionId: collection.id, unitId: unit.id } },
+    }),
+    prisma.dueAssignment.findUnique({
+      where: { collectionId_unitId: { collectionId: collection.id, unitId: unit.id } },
+    }),
+  ])
+  const due = resolveEffectiveDue(collection.amountKobo, assignment)
+
+  if (due.excluded) {
+    return (
+      <div style={{ maxWidth: 480, margin: "0 auto", padding: "80px 24px", textAlign: "center" }}>
+        <div style={{ fontSize: 48, marginBottom: 16 }}>🏠</div>
+        <h1 style={{ fontSize: 20, margin: "0 0 8px", color: "var(--text-primary)" }}>Not due for this collection</h1>
+        <p style={{ fontSize: 14, color: "var(--text-secondary)", margin: 0, lineHeight: 1.5 }}>
+          This house isn&apos;t part of {collection.title}. Please contact your estate administrator if you believe this is an error.
+        </p>
+      </div>
+    )
+  }
+
   const isPaid = payment?.status === "success"
-  const feeKobo = calculateFee(collection.amountKobo)
+  const feeKobo = calculateFee(due.amountKobo)
   const feeDisplay = getFeeDisplay()
   const maskedEmail = unit.residentEmail ? maskEmail(unit.residentEmail) : null
 
@@ -64,7 +84,7 @@ export default async function DirectPayPage({ params }: { params: Promise<{ slug
       collectionId={collection.id}
       unitId={unit.id}
       title={collection.title}
-      amountKobo={collection.amountKobo}
+      amountKobo={due.amountKobo}
       feeKobo={feeKobo}
       feeDisplay={feeDisplay}
       address={unit.address || unit.label}

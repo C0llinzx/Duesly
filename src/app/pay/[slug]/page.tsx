@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db"
-import { calculateFee, getFeeDisplay } from "@/lib/fees"
+import { getFeeDisplay } from "@/lib/fees"
+import { getDueAssignmentMap, resolveEffectiveDue } from "@/lib/dues"
 import PayFlow from "./PayFlow"
 
 export default async function PayPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -54,27 +55,29 @@ export default async function PayPage({ params }: { params: Promise<{ slug: stri
   }
 
   const paidUnitIds = new Set(collection.payments.map((p) => p.unitId))
+  const assignmentMap = await getDueAssignmentMap(collection.id)
 
+  // Units excluded from this specific collection (DueAssignment.excluded) aren't part of
+  // this due at all — don't offer them in the picker.
   const zones = collection.estate?.zones.map((zone) => ({
     id: zone.id,
     name: zone.name,
-    units: zone.units.map((unit) => ({
-      id: unit.id,
-      label: unit.label,
-      address: unit.address,
-      isPaid: paidUnitIds.has(unit.id),
-    })),
+    units: zone.units
+      .filter((unit) => !resolveEffectiveDue(collection.amountKobo, assignmentMap.get(unit.id)).excluded)
+      .map((unit) => ({
+        id: unit.id,
+        label: unit.label,
+        address: unit.address,
+        isPaid: paidUnitIds.has(unit.id),
+      })),
   }))
 
-  const feeKobo = calculateFee(collection.amountKobo)
   const feeDisplay = getFeeDisplay()
 
   return (
     <PayFlow
       zones={zones}
       collectionId={collection.id}
-      amountKobo={collection.amountKobo}
-      feeKobo={feeKobo}
       feeDisplay={feeDisplay}
       estateName={collection.estate.name}
       collectionTitle={collection.title}

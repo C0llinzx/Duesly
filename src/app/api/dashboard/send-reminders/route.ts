@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db"
 import { getSession } from "@/lib/auth"
 import { formatNaira } from "@/lib/money"
 import { sendEmail, reminderHtml } from "@/lib/email"
+import { getDueAssignmentMap, resolveEffectiveDue } from "@/lib/dues"
 
 export async function POST(request: Request) {
   try {
@@ -30,11 +31,15 @@ export async function POST(request: Request) {
     }
 
     const paidUnitIds = new Set(collection.payments.map((p) => p.unitId))
+    const assignmentMap = await getDueAssignmentMap(collectionId)
     const paymentLink = `${process.env.NEXT_PUBLIC_BASE_URL || process.env.APP_URL || "http://localhost:3000"}/pay/${collection.slug}`
 
     const owingUnitsWithEmail = estate.zones
       .flatMap((z) => z.units)
-      .filter((u) => !paidUnitIds.has(u.id) && u.residentEmail && u.status === "active")
+      .filter((u) => {
+        if (paidUnitIds.has(u.id) || !u.residentEmail || u.status !== "active") return false
+        return !resolveEffectiveDue(collection.amountKobo, assignmentMap.get(u.id)).excluded
+      })
 
     if (owingUnitsWithEmail.length === 0) {
       return NextResponse.json({ sent: 0, message: "No owing units with email on file" })
@@ -42,13 +47,14 @@ export async function POST(request: Request) {
 
     const emailPromises = owingUnitsWithEmail.map((unit) => {
       const zone = estate.zones.find((z) => z.units.some((u) => u.id === unit.id))
+      const due = resolveEffectiveDue(collection.amountKobo, assignmentMap.get(unit.id))
       return sendEmail({
         to: unit.residentEmail!,
         subject: `Reminder: ${collection.title} is due`,
         html: reminderHtml({
           estateName: estate.name,
           collectionTitle: collection.title,
-          amount: formatNaira(collection.amountKobo),
+          amount: formatNaira(due.amountKobo),
           dueDate: new Date(collection.dueDate).toLocaleDateString("en-NG"),
           unitLabel: unit.label,
           zoneName: zone?.name ?? "",
@@ -62,10 +68,11 @@ export async function POST(request: Request) {
     Promise.all(emailPromises).catch((err) => console.error("Reminder batch error:", err))
 
     for (const unit of owingUnitsWithEmail) {
+      const due = resolveEffectiveDue(collection.amountKobo, assignmentMap.get(unit.id))
       const payment = await prisma.payment.upsert({
         where: { collectionId_unitId: { collectionId, unitId: unit.id } },
         update: {},
-        create: { unitId: unit.id, collectionId, amountKobo: collection.amountKobo, status: "pending" },
+        create: { unitId: unit.id, collectionId, amountKobo: due.amountKobo, status: "pending" },
       })
       await prisma.paymentLog.create({
         data: { paymentId: payment.id, event: "reminder_sent", metadata: { channel: "email" } },

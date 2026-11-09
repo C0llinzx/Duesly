@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
-import { maskEmail } from "@/lib/fees"
+import { maskEmail, calculateFee } from "@/lib/fees"
+import { resolveEffectiveDue } from "@/lib/dues"
 
 // Reveals one unit's confirmation details (name + masked email) only after the resident has
 // already picked that specific unit from the address list. Never returns a roster — the pay
@@ -17,7 +18,7 @@ export async function GET(request: Request) {
 
   const collection = await prisma.collection.findUnique({
     where: { id: collectionId },
-    select: { estateId: true },
+    select: { estateId: true, amountKobo: true },
   })
 
   if (!collection) {
@@ -38,14 +39,29 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unit not found" }, { status: 404 })
   }
 
-  const payment = await prisma.payment.findUnique({
-    where: { collectionId_unitId: { collectionId, unitId } },
-    select: { status: true },
-  })
+  const [payment, assignment] = await Promise.all([
+    prisma.payment.findUnique({
+      where: { collectionId_unitId: { collectionId, unitId } },
+      select: { status: true },
+    }),
+    prisma.dueAssignment.findUnique({
+      where: { collectionId_unitId: { collectionId, unitId } },
+    }),
+  ])
+
+  const due = resolveEffectiveDue(collection.amountKobo, assignment)
+
+  if (due.excluded) {
+    return NextResponse.json({ error: "This house is not due for this collection" }, { status: 404 })
+  }
+
+  const feeKobo = calculateFee(due.amountKobo)
 
   return NextResponse.json({
     residentName: unit.residentName,
     maskedEmail: unit.residentEmail ? maskEmail(unit.residentEmail) : null,
     isPaid: payment?.status === "success",
+    amountKobo: due.amountKobo,
+    feeKobo,
   })
 }

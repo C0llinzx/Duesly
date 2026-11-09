@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db"
 import { getPaymentGateway } from "@/lib/payments"
 import { checkRateLimit } from "@/lib/rate-limiter"
 import { calculateFee } from "@/lib/fees"
+import { resolveEffectiveDue } from "@/lib/dues"
 
 export async function POST(request: Request) {
   try {
@@ -43,6 +44,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unit not found" }, { status: 404 })
     }
 
+    const assignment = await prisma.dueAssignment.findUnique({
+      where: { collectionId_unitId: { collectionId, unitId } },
+    })
+    const due = resolveEffectiveDue(collection.amountKobo, assignment)
+
+    if (due.excluded) {
+      return NextResponse.json({ error: "This house is not due for this collection" }, { status: 403 })
+    }
+
     const existingPayment = await prisma.payment.findUnique({
       where: { collectionId_unitId: { collectionId, unitId } },
     })
@@ -52,19 +62,19 @@ export async function POST(request: Request) {
     }
 
     const reference = `DUESLY-${collection.id.slice(0, 8)}-${unit.id.slice(0, 8)}-${Date.now()}`
-    const feeKobo = calculateFee(collection.amountKobo)
-    const totalKobo = collection.amountKobo + feeKobo
+    const feeKobo = calculateFee(due.amountKobo)
+    const totalKobo = due.amountKobo + feeKobo
 
     const payment = existingPayment
       ? await prisma.payment.update({
           where: { id: existingPayment.id },
-          data: { gatewayTxRef: reference, amountKobo: collection.amountKobo, feeKobo, method: "online", status: "pending" },
+          data: { gatewayTxRef: reference, amountKobo: due.amountKobo, feeKobo, method: "online", status: "pending" },
         })
       : await prisma.payment.create({
           data: {
             collectionId,
             unitId,
-            amountKobo: collection.amountKobo,
+            amountKobo: due.amountKobo,
             feeKobo,
             method: "online",
             status: "pending",

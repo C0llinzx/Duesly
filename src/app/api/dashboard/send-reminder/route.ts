@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db"
 import { getSession } from "@/lib/auth"
 import { formatNaira } from "@/lib/money"
 import { sendEmail, reminderHtml } from "@/lib/email"
+import { resolveEffectiveDue } from "@/lib/dues"
 
 export async function POST(request: Request) {
   try {
@@ -44,6 +45,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unit not found or no email on file" }, { status: 400 })
     }
 
+    const assignment = await prisma.dueAssignment.findUnique({
+      where: { collectionId_unitId: { collectionId, unitId } },
+    })
+    const due = resolveEffectiveDue(collection.amountKobo, assignment)
+    if (due.excluded) {
+      return NextResponse.json({ error: "This unit is excluded from this due" }, { status: 400 })
+    }
+
     const zone = estate.zones.find((z) => z.units.some((u) => u.id === unitId))
     const paymentLink = `${process.env.APP_URL ?? "http://localhost:3000"}/pay/${collection.slug}`
 
@@ -53,7 +62,7 @@ export async function POST(request: Request) {
       html: reminderHtml({
         estateName: estate.name,
         collectionTitle: collection.title,
-        amount: formatNaira(collection.amountKobo),
+        amount: formatNaira(due.amountKobo),
         dueDate: new Date(collection.dueDate).toLocaleDateString("en-NG"),
         unitLabel: unit.label,
         zoneName: zone?.name ?? "",

@@ -16,6 +16,8 @@ interface UnitDetails {
   residentName: string | null
   maskedEmail: string | null
   isPaid: boolean
+  amountKobo: number
+  feeKobo: number
 }
 
 interface Zone {
@@ -29,16 +31,12 @@ type Step = "zones" | "units" | "confirm" | "email" | "due"
 export default function PayFlow({
   zones,
   collectionId,
-  amountKobo,
-  feeKobo,
   feeDisplay,
   estateName,
   collectionTitle,
 }: {
   zones: Zone[]
   collectionId: string
-  amountKobo: number
-  feeKobo: number
   feeDisplay: { label: string; description: string }
   estateName: string
   collectionTitle: string
@@ -155,9 +153,9 @@ export default function PayFlow({
     }
   }
 
-  const displayAmount = formatNaira(amountKobo)
-  const displayFee = formatNaira(feeKobo)
-  const displayTotal = formatNaira(amountKobo + feeKobo)
+  const displayAmount = formatNaira(unitDetails?.amountKobo ?? 0)
+  const displayFee = formatNaira(unitDetails?.feeKobo ?? 0)
+  const displayTotal = formatNaira((unitDetails?.amountKobo ?? 0) + (unitDetails?.feeKobo ?? 0))
   const address = selectedUnit?.address || selectedUnit?.label || ""
 
   return (

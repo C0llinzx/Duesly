@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
 import { getSession } from "@/lib/auth"
+import { getDueAssignmentMap, resolveEffectiveDue } from "@/lib/dues"
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -25,11 +26,14 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     }
 
     const paidUnitIds = new Set(collection.payments.map((p) => p.unitId))
+    const assignmentMap = await getDueAssignmentMap(collection.id)
 
     const rows: string[][] = [["Zone", "Unit", "Resident Name", "Phone 1", "Phone 2", "Email", "Occupancy"]]
 
     for (const zone of collection.estate.zones) {
       for (const unit of zone.units) {
+        const due = resolveEffectiveDue(collection.amountKobo, assignmentMap.get(unit.id))
+        if (due.excluded) continue
         if (!paidUnitIds.has(unit.id)) {
           rows.push([
             zone.name,
