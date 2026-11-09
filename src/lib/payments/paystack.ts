@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from "crypto"
-import type { InitPaymentParams, VerifyPaymentResult, PaymentGateway } from "./gateway"
+import type { InitPaymentParams, VerifyPaymentResult, PaymentGateway, WebhookEvent } from "./gateway"
 import { getEnv } from "../env"
 
 interface PaystackInitResponse {
@@ -87,17 +87,33 @@ export const paystackGateway: PaymentGateway = {
       paidAt: json.data.paid_at,
     }
   },
-}
 
-export function verifyWebhookSignature(signature: string, body: string): boolean {
-  const env = getEnv()
-  const hash = createHmac("sha512", env.PAYSTACK_SECRET_KEY!)
-    .update(body)
-    .digest("hex")
+  verifyWebhookSignature(rawBody: string, headers: Headers): boolean {
+    const env = getEnv()
+    const signature = headers.get("x-paystack-signature") ?? ""
+    const hash = createHmac("sha512", env.PAYSTACK_SECRET_KEY!)
+      .update(rawBody)
+      .digest("hex")
 
-  try {
-    return timingSafeEqual(Buffer.from(hash), Buffer.from(signature))
-  } catch {
-    return false
-  }
+    try {
+      return timingSafeEqual(Buffer.from(hash), Buffer.from(signature))
+    } catch {
+      return false
+    }
+  },
+
+  parseWebhookEvent(rawBody: string): WebhookEvent {
+    let event: { event?: string; data?: { reference?: string } }
+    try {
+      event = JSON.parse(rawBody)
+    } catch {
+      return { type: "ignored", reference: null }
+    }
+
+    const reference = event.data?.reference ?? null
+
+    if (event.event === "charge.success") return { type: "success", reference }
+    if (event.event === "charge.failed") return { type: "failed", reference }
+    return { type: "ignored", reference }
+  },
 }

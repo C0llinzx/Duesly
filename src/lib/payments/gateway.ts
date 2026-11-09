@@ -15,7 +15,14 @@ export interface VerifyPaymentResult {
   paidAt: string | null
 }
 
+export interface WebhookEvent {
+  type: "success" | "failed" | "ignored"
+  reference: string | null
+}
+
 export interface PaymentGateway {
   initPayment(params: InitPaymentParams): Promise<{ authorizationUrl: string; accessCode: string }>
   verifyPayment(reference: string): Promise<VerifyPaymentResult>
+  verifyWebhookSignature(rawBody: string, headers: Headers): boolean
+  parseWebhookEvent(rawBody: string): WebhookEvent
 }

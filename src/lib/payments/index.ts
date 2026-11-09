@@ -1,5 +1,5 @@
 import type { PaymentGateway } from "./gateway"
-import { paystackGateway, verifyWebhookSignature as verifyPaystack } from "./paystack"
+import { paystackGateway } from "./paystack"
 import { getEnv } from "../env"
 
 let _gateway: PaymentGateway | null = null
@@ -18,15 +18,4 @@ export function getPaymentGateway(): PaymentGateway {
   }
 
   return _gateway
-}
-
-export function verifyWebhookSignature(signature: string, body: string): boolean {
-  const provider = getEnv().PAYMENT_GATEWAY
-
-  switch (provider) {
-    case "paystack":
-      return verifyPaystack(signature, body)
-    default:
-      return false
-  }
 }

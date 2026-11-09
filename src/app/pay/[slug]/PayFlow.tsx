@@ -9,6 +9,10 @@ interface Unit {
   id: string
   label: string
   address: string | null
+  isPaid: boolean
+}
+
+interface UnitDetails {
   residentName: string | null
   maskedEmail: string | null
   isPaid: boolean
@@ -47,6 +51,8 @@ export default function PayFlow({
   const [theme, setTheme] = useState<"dark" | "light">("dark")
   const [emailMode, setEmailMode] = useState<"masked" | "input">("masked")
   const [customEmail, setCustomEmail] = useState("")
+  const [unitDetails, setUnitDetails] = useState<UnitDetails | null>(null)
+  const [detailsLoading, setDetailsLoading] = useState(false)
 
   useEffect(() => {
     const stored = localStorage.getItem("duesly-theme") as "dark" | "light" | null
@@ -69,17 +75,42 @@ export default function PayFlow({
 
   function goBackToUnits() {
     setSelectedUnitId("")
+    setUnitDetails(null)
     setStep("units")
   }
 
   function goBackToZones() {
     setSelectedZoneId("")
     setSelectedUnitId("")
+    setUnitDetails(null)
     setStep("zones")
   }
 
+  async function selectUnit(unit: Unit) {
+    if (unit.isPaid) return
+    setSelectedUnitId(unit.id)
+    setDetailsLoading(true)
+    setError("")
+    try {
+      const res = await fetch(`/api/pay/unit?collectionId=${collectionId}&unitId=${unit.id}`)
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error ?? "Could not load this house. Please try again.")
+        setSelectedUnitId("")
+        return
+      }
+      setUnitDetails(data)
+      setStep("confirm")
+    } catch {
+      setError("Something went wrong. Please try again.")
+      setSelectedUnitId("")
+    } finally {
+      setDetailsLoading(false)
+    }
+  }
+
   function goToEmailStep() {
-    if (selectedUnit?.maskedEmail) {
+    if (unitDetails?.maskedEmail) {
       setEmailMode("masked")
     } else {
       setEmailMode("input")
@@ -98,7 +129,7 @@ export default function PayFlow({
   }
 
   async function handlePay() {
-    if (!selectedUnit || selectedUnit.isPaid) return
+    if (!selectedUnit || unitDetails?.isPaid) return
     setLoading(true)
     setError("")
 
@@ -165,13 +196,14 @@ export default function PayFlow({
         <div className={s.stepActive}>
           <button className={s.backLink} onClick={goBackToZones}>← Back to zones</button>
           <p className={s.stepLabel}>Select your street</p>
+          {error && <div className={s.errorBox} style={{ marginBottom: 16 }}>{error}</div>}
           <div className={s.unitList}>
             {selectedZone?.units.map((unit) => (
               <button
                 key={unit.id}
                 className={s.unitBtn}
-                disabled={unit.isPaid}
-                onClick={() => { setSelectedUnitId(unit.id); setStep("confirm") }}
+                disabled={unit.isPaid || (detailsLoading && selectedUnitId === unit.id)}
+                onClick={() => selectUnit(unit)}
               >
                 <div className={s.unitAddress}>{unit.address || unit.label}</div>
                 {unit.isPaid && <div className={s.unitPaidBadge}>Paid</div>}
@@ -185,12 +217,12 @@ export default function PayFlow({
       {step === "confirm" && (
         <div className={s.stepActive}>
           <button className={s.backLink} onClick={goBackToUnits}>← Back to streets</button>
-          {selectedUnit?.residentName ? (
+          {unitDetails?.residentName ? (
             <>
               <div className={s.confirmCard}>
                 <p className={s.confirmAddress}>{address}</p>
                 <p className={s.confirmPrompt}>
-                  Is this <span className={s.confirmName}>{selectedUnit.residentName}</span>&apos;s house?
+                  Is this <span className={s.confirmName}>{unitDetails.residentName}</span>&apos;s house?
                 </p>
               </div>
               <div className={s.confirmBtns}>
@@ -225,12 +257,12 @@ export default function PayFlow({
       {step === "email" && (
         <div className={s.stepActive}>
           <button className={s.backLink} onClick={() => setStep("confirm")}>← Back</button>
-          {emailMode === "masked" && selectedUnit?.maskedEmail ? (
+          {emailMode === "masked" && unitDetails?.maskedEmail ? (
             <>
               <div className={s.confirmCard}>
                 <p className={s.confirmAddress}>Receipt email</p>
                 <p className={s.confirmPrompt}>
-                  We&apos;ll send your receipt to <span className={s.confirmName}>{selectedUnit.maskedEmail}</span>. Is this right?
+                  We&apos;ll send your receipt to <span className={s.confirmName}>{unitDetails.maskedEmail}</span>. Is this right?
                 </p>
               </div>
               <div className={s.confirmBtns}>
@@ -257,7 +289,7 @@ export default function PayFlow({
                 />
               </div>
               <div className={s.confirmBtns}>
-                {selectedUnit?.maskedEmail && (
+                {unitDetails?.maskedEmail && (
                   <button className={`${s.confirmBtn} ${s.confirmBtnNo}`} onClick={() => setEmailMode("masked")}>
                     ← Back
                   </button>
@@ -279,12 +311,12 @@ export default function PayFlow({
       {step === "due" && (
         <div className={s.stepActive}>
           <button className={s.backLink} onClick={() => setStep("email")}>← Back</button>
-          {selectedUnit?.isPaid ? (
+          {unitDetails?.isPaid ? (
             <div className={s.paidCard}>
               <div className={s.paidIcon}>✅</div>
               <h3 className={s.paidTitle}>You&apos;re all paid</h3>
               <p className={s.paidDesc}>
-                {selectedUnit.residentName ? `${selectedUnit.residentName}` : "This house"} has already paid for {collectionTitle}.
+                {unitDetails.residentName ? `${unitDetails.residentName}` : "This house"} has already paid for {collectionTitle}.
               </p>
             </div>
           ) : (
@@ -292,8 +324,8 @@ export default function PayFlow({
               <div className={s.dueCard}>
                 <p className={s.dueCollection}>{collectionTitle}</p>
                 <p className={s.dueAddress}>{address}</p>
-                {selectedUnit?.residentName && (
-                  <p className={s.dueResident}>Resident: {selectedUnit.residentName}</p>
+                {unitDetails?.residentName && (
+                  <p className={s.dueResident}>Resident: {unitDetails.residentName}</p>
                 )}
 
                 <div className={s.breakdown}>
@@ -321,7 +353,7 @@ export default function PayFlow({
       )}
 
       {/* ── Sticky pay bar (only on owing due step) ── */}
-      {step === "due" && selectedUnit && !selectedUnit.isPaid && (
+      {step === "due" && selectedUnit && !unitDetails?.isPaid && (
         <div className={s.stickyBar}>
           <div className={s.stickyBarInner}>
             <button className={s.payBtn} onClick={handlePay} disabled={loading}>

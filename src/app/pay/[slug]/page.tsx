@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db"
-import { calculateFee, getFeeDisplay, maskEmail } from "@/lib/fees"
+import { calculateFee, getFeeDisplay } from "@/lib/fees"
 import PayFlow from "./PayFlow"
 
 export default async function PayPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -14,7 +14,7 @@ export default async function PayPage({ params }: { params: Promise<{ slug: stri
             include: {
               units: {
                 where: { status: "active" },
-                select: { id: true, label: true, address: true, residentName: true, residentEmail: true, zoneId: true },
+                select: { id: true, label: true, address: true, zoneId: true },
                 orderBy: { label: "asc" },
               },
             },
@@ -62,8 +62,6 @@ export default async function PayPage({ params }: { params: Promise<{ slug: stri
       id: unit.id,
       label: unit.label,
       address: unit.address,
-      residentName: unit.residentName,
-      maskedEmail: unit.residentEmail ? maskEmail(unit.residentEmail) : null,
       isPaid: paidUnitIds.has(unit.id),
     })),
   }))
