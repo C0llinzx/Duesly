@@ -120,10 +120,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   }
 
   if (action === "assign") {
+    // amountKobo is an optional custom override for this unit's due; omit it to just
+    // (re-)include the unit at the collection's default amount.
+    const customAmount = typeof amountKobo === "number" ? amountKobo : null
     await prisma.dueAssignment.upsert({
       where: { collectionId_unitId: { collectionId, unitId: id } },
-      update: { excluded: false },
-      create: { collectionId, unitId: id },
+      update: { excluded: false, amountKobo: customAmount },
+      create: { collectionId, unitId: id, amountKobo: customAmount },
     })
     return NextResponse.json({ ok: true })
   }

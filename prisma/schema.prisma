@@ -30,6 +30,14 @@ model Estate {
   zones     Zone[]
   collections Collection[]
 
+  // Settlement: once set, online payments split to this Paystack subaccount so the levy
+  // amount settles directly to the estate's own bank account instead of pooling in Duesly's.
+  paystackSubaccountCode  String?  @map("paystack_subaccount_code")
+  settlementBankCode      String?  @map("settlement_bank_code")
+  settlementBankName      String?  @map("settlement_bank_name")
+  settlementAccountNumber String?  @map("settlement_account_number")
+  settlementAccountName   String?  @map("settlement_account_name")
+
   @@map("estates")
 }
 

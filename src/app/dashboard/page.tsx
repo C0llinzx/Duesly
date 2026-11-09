@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import {
   Shield,
+  AlertTriangle,
 } from "lucide-react"
 import { formatNaira } from "@/lib/money"
 import CollectionChart from "./CollectionChart"
@@ -52,6 +53,7 @@ function StatCard({ label, trend: _trend, support, children, filled }: StatCardP
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [activityItems, setActivityItems] = useState<ActivityItem[]>([])
+  const [settlementConfigured, setSettlementConfigured] = useState<boolean | null>(null)
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
@@ -66,11 +68,15 @@ export default function DashboardPage() {
         }),
       fetch("/api/dashboard/overview/activity", { signal: ctrl.signal })
         .then(async (r) => (r.ok ? ((await r.json()).activity ?? []) : [])),
+      fetch("/api/dashboard/settlement", { signal: ctrl.signal })
+        .then(async (r) => (r.ok ? (await r.json()).configured ?? false : null))
+        .catch(() => null),
     ])
-      .then(([overview, activity]) => {
+      .then(([overview, activity, settlementConfigured]) => {
         if (cancelled) return
         setData(overview)
         setActivityItems(activity)
+        setSettlementConfigured(settlementConfigured)
       })
       .catch(() => {})
       .finally(() => {
@@ -112,6 +118,13 @@ export default function DashboardPage() {
           </Link>
         )}
       </header>
+
+      {settlementConfigured === false && hasUnits && (
+        <Link href="/dashboard/setup" className={d.settlementWarning}>
+          <AlertTriangle size={16} />
+          <span>Payouts aren&apos;t set up yet — online payments aren&apos;t settling to your estate&apos;s bank account. Set up payouts →</span>
+        </Link>
+      )}
 
       {/* ── Widget Grid ── */}
       <div className={d.overview}>

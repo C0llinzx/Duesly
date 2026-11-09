@@ -4,6 +4,18 @@ export interface InitPaymentParams {
   reference: string
   callbackUrl: string
   metadata: Record<string, string>
+  /**
+   * Settlement split (optional — omitted until the estate has configured a payout
+   * subaccount). When present, the gateway splits the charge so `amountKobo` minus
+   * `transactionChargeKobo` settles to the estate's own account instead of pooling
+   * in Duesly's. `bearer: "main"` means Duesly's account absorbs the gateway's own
+   * processing fee, not the estate's subaccount.
+   */
+  split?: {
+    subaccountCode: string
+    transactionChargeKobo: number
+    bearer: "main" | "subaccount"
+  }
 }
 
 export interface VerifyPaymentResult {

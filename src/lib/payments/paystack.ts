@@ -27,7 +27,7 @@ interface PaystackVerifyResponse {
 }
 
 export const paystackGateway: PaymentGateway = {
-  async initPayment({ email, amountKobo, reference, callbackUrl, metadata }: InitPaymentParams) {
+  async initPayment({ email, amountKobo, reference, callbackUrl, metadata, split }: InitPaymentParams) {
     const env = getEnv()
     const res = await fetch("https://api.paystack.co/transaction/initialize", {
       method: "POST",
@@ -41,6 +41,11 @@ export const paystackGateway: PaymentGateway = {
         reference,
         callback_url: callbackUrl,
         metadata,
+        ...(split && {
+          subaccount: split.subaccountCode,
+          transaction_charge: split.transactionChargeKobo,
+          bearer: split.bearer === "main" ? "account" : "subaccount",
+        }),
       }),
     })
 

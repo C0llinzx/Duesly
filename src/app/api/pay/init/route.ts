@@ -111,6 +111,13 @@ export async function POST(request: Request) {
         unitId: unit.id,
         estateName: collection.estate.name,
       },
+      ...(collection.estate.paystackSubaccountCode && {
+        split: {
+          subaccountCode: collection.estate.paystackSubaccountCode,
+          transactionChargeKobo: feeKobo,
+          bearer: "main",
+        },
+      }),
     })
 
     return NextResponse.json({
