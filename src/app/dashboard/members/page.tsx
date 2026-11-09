@@ -498,6 +498,9 @@ export default function MembersPage() {
         setCsvRows(null)
         setCsvErrors([])
         let msg = `${data.inserted} house${data.inserted !== 1 ? "s" : ""} imported${data.updated > 0 ? `, ${data.updated} updated` : ""}.`
+        if (data.skipped > 0) {
+          msg += ` ${data.skipped} row${data.skipped !== 1 ? "s" : ""} skipped due to errors.`
+        }
         if (data.autoAssigned?.length > 0) {
           const parts = data.autoAssigned.map((a: { levyTitle: string; count: number }) => `${a.count} to ${a.levyTitle}`)
           msg += ` Auto-assigned: ${parts.join(", ")}.`

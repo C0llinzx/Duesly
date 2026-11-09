@@ -23,8 +23,12 @@ export async function POST(request: Request) {
     const content = await file.text()
     const result = parseRosterCsv(content)
 
-    if (result.errors.length > 0) {
-      return NextResponse.json({ error: "CSV has errors", errors: result.errors }, { status: 400 })
+    // Commit every row the preview showed as valid, even if other rows in the same file had
+    // errors — the preview already told the treasurer which rows were which, and the PRD's
+    // edge case for a messy CSV is "fix or skip," not "the whole file fails." Rows with errors
+    // are reported back as skipped rather than silently dropped.
+    if (result.rows.length === 0) {
+      return NextResponse.json({ error: "No valid rows to import", errors: result.errors }, { status: 400 })
     }
 
     let inserted = 0
@@ -80,7 +84,14 @@ export async function POST(request: Request) {
     // Auto-assign newly created units to active levies
     const autoAssigned = await autoAssignNewUnits(user.estate.id, newUnitIds)
 
-    return NextResponse.json({ ok: true, inserted, updated, autoAssigned })
+    return NextResponse.json({
+      ok: true,
+      inserted,
+      updated,
+      autoAssigned,
+      skipped: result.errors.length,
+      skippedErrors: result.errors,
+    })
   } catch (error: any) {
     console.error("CSV import error:", error)
     const message = error?.code === "P2002"

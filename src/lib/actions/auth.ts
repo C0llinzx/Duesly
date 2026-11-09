@@ -3,8 +3,15 @@
 import { prisma } from "@/lib/db"
 import { verifyPassword, hashPassword, createSession } from "@/lib/auth"
 import { redirect } from "next/navigation"
+import { headers } from "next/headers"
 import crypto from "crypto"
-import { sendEmail, passwordResetHtml } from "@/lib/email"
+import { sendEmail, passwordResetHtml, welcomeHtml } from "@/lib/email"
+import { checkRateLimit } from "@/lib/rate-limiter"
+
+async function clientIp(): Promise<string> {
+  const h = await headers()
+  return h.get("x-forwarded-for") ?? "unknown"
+}
 
 export type ActionResult = {
   ok: boolean
@@ -20,6 +27,10 @@ export async function loginAction(_prev: ActionResult, formData: FormData): Prom
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) errors.email = ["Enter a valid email address"]
   if (!password) errors.password = ["This field cannot be empty"]
   if (Object.keys(errors).length > 0) return { ok: false, errors }
+
+  if (!checkRateLimit(`login:${await clientIp()}`, 5, 60000)) {
+    return { ok: false, errors: { _form: ["Too many attempts. Try again in a minute."] } }
+  }
 
   try {
     const user = await prisma.user.findUnique({ where: { email: email.trim() } })
@@ -57,12 +68,17 @@ export async function signupAction(_prev: ActionResult, formData: FormData): Pro
   }
   if (Object.keys(errors).length > 0) return { ok: false, errors }
 
+  if (!checkRateLimit(`signup:${await clientIp()}`, 3, 60000)) {
+    return { ok: false, errors: { _form: ["Too many attempts. Try again in a minute."] } }
+  }
+
+  let user: { id: string; name: string; email: string }
   try {
     const existing = await prisma.user.findUnique({ where: { email: email.trim() } })
     if (existing) return { ok: false, errors: { email: ["Email already registered"] } }
 
     const passwordHash = await hashPassword(password)
-    const user = await prisma.user.create({
+    user = await prisma.user.create({
       data: {
         name: name.trim(),
         email: email.trim(),
@@ -76,6 +92,17 @@ export async function signupAction(_prev: ActionResult, formData: FormData): Pro
     console.error("Signup action error:", err)
     return { ok: false, errors: { _form: ["Something went wrong. Please try again."] } }
   }
+
+  sendEmail({
+    to: user.email,
+    subject: "Welcome to Duesly",
+    html: welcomeHtml({
+      name: user.name,
+      estateName: estateName.trim(),
+      dashboardUrl: `${process.env.APP_URL ?? "http://localhost:3000"}/dashboard`,
+    }),
+  }).catch((err) => console.error("Failed to send welcome email:", err))
+
   redirect("/dashboard")
 }
 
