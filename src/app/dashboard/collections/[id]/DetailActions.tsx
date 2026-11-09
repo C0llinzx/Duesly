@@ -52,7 +52,7 @@ export default function DetailActions({
           <Bell size={14} />
           Send reminders
         </button>
-        <RecordPaymentButton collectionId={collectionId} />
+        <RecordPaymentButton collectionId={collectionId} owingUnits={owingUnits} onToast={success} />
       </div>
 
       <SendRemindersModal

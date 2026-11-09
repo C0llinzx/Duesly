@@ -206,6 +206,7 @@ export default function MembersPage() {
   // ── Payment status (who to chase) ──
   const [paidUnits, setPaidUnits] = useState<Set<string>>(new Set())
   const [activeCollection, setActiveCollection] = useState<string | null>(null)
+  const [activeCollectionId, setActiveCollectionId] = useState<string | null>(null)
 
   // ── Multi-due support ──
   const [allDues, setAllDues] = useState<{ id: string; title: string; amountKobo: number }[]>([])
@@ -251,7 +252,7 @@ export default function MembersPage() {
               }
             }
             setPaidUnits(paid)
-            if (data.collection) setActiveCollection(data.collection.title)
+            if (data.collection) { setActiveCollection(data.collection.title); setActiveCollectionId(data.collection.id) }
           }
         }
       }),
@@ -321,7 +322,7 @@ export default function MembersPage() {
           }
         }
         setPaidUnits(paid)
-        if (data.collection) setActiveCollection(data.collection.title)
+        if (data.collection) { setActiveCollection(data.collection.title); setActiveCollectionId(data.collection.id) }
       }
 
       if (collectionsRes.ok) {
@@ -386,10 +387,6 @@ export default function MembersPage() {
       return 0
     })
 
-  const totalOwingAmount = activeCollection
-    ? filteredMembers.filter((m) => !paidUnits.has(m.id)).length * 1500000 // ₦15,000 per house
-    : 0
-
   function toggleSelect(id: string) {
     setSelectedIds((prev) => {
       const next = new Set(prev)
@@ -408,14 +405,43 @@ export default function MembersPage() {
 
   // ── Bulk remind ──
 
-  function handleBulkRemind() {
+  const [remindingBulk, setRemindingBulk] = useState(false)
+
+  async function handleBulkRemind() {
+    const collectionId = selectedDueFilter || activeCollectionId
+    if (!collectionId) {
+      showFeedback("error", "No active due to remind for.")
+      return
+    }
+
     const owingSelected = filteredMembers.filter((m) => selectedIds.has(m.id) && !paidUnits.has(m.id))
     if (owingSelected.length === 0) {
       showFeedback("error", "No owing houses selected.")
       return
     }
-    toastSuccess(`Reminder sent to ${owingSelected.length} house${owingSelected.length !== 1 ? "s" : ""}.`)
-    setSelectedIds(new Set())
+
+    setRemindingBulk(true)
+    try {
+      const results = await Promise.allSettled(
+        owingSelected.map((m) =>
+          fetch("/api/dashboard/send-reminder", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ collectionId, unitId: m.id }),
+          }).then((res) => res.ok),
+        ),
+      )
+      const sent = results.filter((r) => r.status === "fulfilled" && r.value).length
+      const skipped = owingSelected.length - sent
+      if (sent === 0) {
+        showFeedback("error", "Couldn't send reminders — selected houses may have no email on file.")
+      } else {
+        toastSuccess(`Reminder sent to ${sent} house${sent !== 1 ? "s" : ""}${skipped > 0 ? ` · ${skipped} skipped (no email on file)` : ""}.`)
+      }
+      setSelectedIds(new Set())
+    } finally {
+      setRemindingBulk(false)
+    }
   }
 
   // ── Import CSV ──
@@ -864,8 +890,8 @@ export default function MembersPage() {
             </span>
             {selectedIds.size > 0 && (
               <span className={m.summaryActions}>
-                <button className={m.summaryBtn} onClick={handleBulkRemind}>
-                  Remind selected ({selectedIds.size})
+                <button className={m.summaryBtn} onClick={handleBulkRemind} disabled={remindingBulk}>
+                  {remindingBulk ? "Sending…" : `Remind selected (${selectedIds.size})`}
                 </button>
                 <button className={m.summaryBtnSecondary} onClick={() => setSelectedIds(new Set())}>
                   Clear

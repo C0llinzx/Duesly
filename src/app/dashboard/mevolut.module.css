@@ -6237,6 +6237,59 @@
   flex-shrink: 0;
 }
 
+.remSearchInput {
+  width: 100%;
+  font-size: var(--font-size-text-xs);
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+}
+
+.remSearchInput:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.remUnitList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 240px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.remUnitRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: var(--surface-card);
+  color: var(--text-primary);
+  font-size: var(--font-size-text-xs);
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+  font-family: inherit;
+}
+
+.remUnitRow:hover {
+  border-color: var(--text-tertiary);
+}
+
+.remUnitRowActive {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
 .remModalActions {
   display: flex;
   gap: 8px;

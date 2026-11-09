@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
 import { getSession } from "@/lib/auth"
+import { resolveEffectiveDue } from "@/lib/dues"
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession()
@@ -88,11 +89,19 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   if (!collection) return NextResponse.json({ error: "Collection not found" }, { status: 404 })
 
   if (action === "mark-paid") {
+    const assignment = await prisma.dueAssignment.findUnique({
+      where: { collectionId_unitId: { collectionId, unitId: id } },
+    })
+    const due = resolveEffectiveDue(collection.amountKobo, assignment)
+    if (due.excluded) {
+      return NextResponse.json({ error: "This unit is excluded from this due" }, { status: 400 })
+    }
+
     await prisma.payment.create({
       data: {
         collectionId,
         unitId: id,
-        amountKobo: amountKobo ?? collection.amountKobo,
+        amountKobo: amountKobo ?? due.amountKobo,
         method: "manual",
         status: "success",
         paidAt: new Date(),
