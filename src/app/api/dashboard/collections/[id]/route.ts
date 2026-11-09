@@ -2,6 +2,56 @@ import { NextRequest, NextResponse } from "next/server"
 import { getSession } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+    const { id } = await params
+
+    const user = await prisma.user.findUnique({
+      where: { id: session.userId },
+      include: { estate: { include: { zones: { include: { units: { where: { status: "active" }, orderBy: { label: "asc" } } }, orderBy: { name: "asc" } } } } },
+    })
+
+    if (!user?.estate) return NextResponse.json({ error: "No estate" }, { status: 404 })
+
+    const collection = await prisma.collection.findFirst({
+      where: { id, estateId: user.estate.id },
+    })
+
+    if (!collection) return NextResponse.json({ error: "Collection not found" }, { status: 404 })
+
+    const paidPayments = await prisma.payment.findMany({
+      where: { collectionId: id, status: "success" },
+      select: { unitId: true, paidAt: true },
+    })
+
+    const paidMap = new Map<string, boolean>()
+    for (const p of paidPayments) {
+      paidMap.set(p.unitId, true)
+    }
+
+    const units = user.estate.zones.flatMap((zone) =>
+      zone.units.map((unit) => ({
+        id: unit.id,
+        label: unit.label,
+        residentName: unit.residentName,
+        phone1: unit.phone1,
+        paid: paidMap.has(unit.id),
+      }))
+    )
+
+    return NextResponse.json({ collection, units })
+  } catch (error) {
+    console.error("Collection GET error:", error)
+    return NextResponse.json({ error: "Something went wrong" }, { status: 500 })
+  }
+}
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

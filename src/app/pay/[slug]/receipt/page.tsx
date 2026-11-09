@@ -1,5 +1,16 @@
 import { prisma } from "@/lib/db"
-import ReceiptFlow from "../ReceiptFlow"
+import ReceiptCard from "./ReceiptCard"
+
+function maskEmail(email: string | null | undefined): string | null {
+  if (!email) return null
+  const parts = email.split("@")
+  if (parts.length !== 2) return email
+  const [local, domain] = parts
+  if (local.length <= 2) {
+    return `${local.slice(0, 1)}•••••@${domain}`
+  }
+  return `${local.slice(0, 2)}•••••@${domain}`
+}
 
 export default async function ReceiptPage({
   params,
@@ -27,7 +38,15 @@ export default async function ReceiptPage({
   const payment = await prisma.payment.findUnique({
     where: { gatewayTxRef: reference },
     include: {
-      collection: { include: { estate: true } },
+      collection: {
+        include: {
+          estate: {
+            include: {
+              admin: true
+            }
+          }
+        }
+      },
       unit: { include: { zone: true } },
     },
   })
@@ -44,8 +63,16 @@ export default async function ReceiptPage({
     )
   }
 
+  const formattedPaidAt = payment.paidAt
+    ? new Intl.DateTimeFormat("en-US", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }).format(new Date(payment.paidAt))
+    : "Pending verification"
+
   return (
-    <ReceiptFlow
+    <ReceiptCard
       initial={{
         status: payment.status,
         amountKobo: payment.amountKobo,
@@ -57,6 +84,10 @@ export default async function ReceiptPage({
         unitLabel: payment.unit.label,
         residentName: payment.unit.residentName,
         reference,
+        formattedPaidAt,
+        method: payment.method,
+        maskedEmail: maskEmail(payment.unit.residentEmail),
+        treasurerName: payment.collection.estate.admin.name,
       }}
     />
   )

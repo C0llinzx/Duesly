@@ -27,13 +27,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <DashboardHeader estateName={user.estate?.name ?? "My Estate"} />
           <div className={d.contentPanelScroll}>
             {children}
-            <div className={d.shellZone}>
-              <div className={d.shellLeft} />
-              <div className={d.shellRight}>
-                <ShellZone />
-              </div>
-            </div>
           </div>
+          <ShellZone />
         </div>
       </div>
     </div>

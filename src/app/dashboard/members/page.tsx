@@ -288,9 +288,11 @@ export default function MembersPage() {
 
   async function reloadData() {
     try {
-      const [zonesRes, unitsRes] = await Promise.all([
+      const [zonesRes, unitsRes, overviewRes, collectionsRes] = await Promise.all([
         fetch("/api/dashboard/zones"),
         fetch("/api/dashboard/units"),
+        fetch("/api/dashboard/overview"),
+        fetch("/api/dashboard/collections"),
       ])
 
       if (zonesRes.ok) {
@@ -308,6 +310,39 @@ export default function MembersPage() {
           }
         }
         setAllMembers(flat)
+      }
+
+      if (overviewRes.ok) {
+        const data = await overviewRes.json()
+        const paid = new Set<string>()
+        for (const z of data.zones ?? []) {
+          for (const u of z.units ?? []) {
+            if (u.paid) paid.add(u.id)
+          }
+        }
+        setPaidUnits(paid)
+        if (data.collection) setActiveCollection(data.collection.title)
+      }
+
+      if (collectionsRes.ok) {
+        const data = await collectionsRes.json()
+        const dues = data.collections ?? []
+        setAllDues(dues.map((c: any) => ({ id: c.id, title: c.title, amountKobo: c.amountKobo })))
+        const pmap = new Map<string, Set<string>>()
+        for (const c of dues) {
+          try {
+            const pres = await fetch(`/api/dashboard/collections/${c.id}`)
+            if (pres.ok) {
+              const pdata = await pres.json()
+              const paidSet = new Set<string>()
+              for (const u of pdata.units ?? []) {
+                if (u.paid) paidSet.add(u.id)
+              }
+              pmap.set(c.id, paidSet)
+            }
+          } catch {}
+        }
+        setDuePayments(pmap)
       }
     } catch {
       // ignore
@@ -1050,6 +1085,7 @@ export default function MembersPage() {
                                 const data = await (await fetch(`/api/dashboard/units/${editForm.memberId}/dues`)).json()
                                 setDrawerDues(data.dues ?? [])
                                 showFeedback("success", `${due.title} marked as paid.`)
+                                await reloadData()
                               }
                             }}>Mark paid</button>
                             {editForm.phone1 && (
@@ -1078,6 +1114,7 @@ export default function MembersPage() {
                             })
                             const data = await (await fetch(`/api/dashboard/units/${editForm.memberId}/dues`)).json()
                             setDrawerDues(data.dues ?? [])
+                            await reloadData()
                           }}>Exclude from this due</button>
                         )}
                         {due.isExcluded && (
@@ -1089,6 +1126,7 @@ export default function MembersPage() {
                             })
                             const data = await (await fetch(`/api/dashboard/units/${editForm.memberId}/dues`)).json()
                             setDrawerDues(data.dues ?? [])
+                            await reloadData()
                           }}>Re-assign to this due</button>
                         )}
                       </div>

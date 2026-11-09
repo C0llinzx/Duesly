@@ -36,18 +36,23 @@ const mainLinks: NavItem[] = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/members", label: "Houses & Residents", icon: Home },
   { href: "/dashboard/collections", label: "Dues", icon: Wallet },
+  { href: "/dashboard/setup", label: "Estate Settings", icon: Settings },
 ]
 
 const recordsLinks: NavItem[] = [
   { href: "/dashboard/payments", label: "Payments", icon: Receipt },
+  { href: "/dashboard/billing", label: "Billing", icon: CreditCard },
 ]
 
 function useSectionOpen(key: string, defaultOpen = true): [boolean, (v: boolean) => void] {
-  const [open, setOpen] = useState<boolean>(() => {
-    if (typeof window === "undefined") return defaultOpen
+  const [open, setOpen] = useState(defaultOpen)
+
+  useEffect(() => {
     const stored = localStorage.getItem(`sidebar:${key}`)
-    return stored !== null ? stored === "1" : defaultOpen
-  })
+    if (stored !== null) {
+      setOpen(stored === "1")
+    }
+  }, [key])
 
   useEffect(() => {
     localStorage.setItem(`sidebar:${key}`, open ? "1" : "0")
@@ -199,12 +204,8 @@ export default function MevolutSidebar({ estateName, userName }: Props) {
                     <HelpCircle size={14} strokeWidth={1.75} />
                     Help &amp; Support
                   </button>
-                  <button className={d.avatarDropdownItem}>
+                  <button className={d.avatarDropdownItem} onClick={() => { setMenuOpen(false); router.push("/dashboard/billing") }}>
                     <CreditCard size={14} strokeWidth={1.75} />
-                    Pricing
-                  </button>
-                  <button className={d.avatarDropdownItem}>
-                    <Receipt size={14} strokeWidth={1.75} />
                     Billing
                   </button>
                   <button className={d.avatarDropdownItem}>

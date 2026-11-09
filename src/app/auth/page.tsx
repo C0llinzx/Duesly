@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import { useActionState } from "react"
 import { useFormStatus } from "react-dom"
 import { Eye, EyeOff, AlertCircle } from "lucide-react"
-import { loginAction, signupAction } from "@/lib/actions/auth"
+import { loginAction, signupAction, requestPasswordResetAction } from "@/lib/actions/auth"
 import ThemeToggle from "@/components/ThemeToggle"
 import styles from "./auth.module.css"
 
@@ -43,6 +43,8 @@ export default function AuthPage() {
   const [loginState, loginFormAction] = useActionState(loginAction, { ok: false })
   const [signupState, signupFormAction] = useActionState(signupAction, { ok: false })
   const [signupBanner, setSignupBanner] = useState("")
+
+
 
   const [prevLoginState, setPrevLoginState] = useState(loginState)
   if (loginState !== prevLoginState) {
@@ -110,6 +112,35 @@ export default function AuthPage() {
 
   const [forgotSent, setForgotSent] = useState(false)
   const [forgotSubmittedEmail, setForgotSubmittedEmail] = useState("")
+
+  const [forgotEmail, setForgotEmail] = useState("")
+  const [forgotEmailError, setForgotEmailError] = useState("")
+  const [resetSuccess, setResetSuccess] = useState(false)
+
+  const [forgotState, forgotFormAction] = useActionState(requestPasswordResetAction, { ok: false })
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get("reset") === "success") {
+        setResetSuccess(true)
+        const newUrl = window.location.pathname
+        window.history.replaceState({}, "", newUrl)
+      }
+    }
+  }, [])
+
+  // Handle forgotState change
+  const [prevForgotState, setPrevForgotState] = useState(forgotState)
+  if (forgotState !== prevForgotState) {
+    setPrevForgotState(forgotState)
+    if (forgotState.ok) {
+      setForgotSubmittedEmail(forgotEmail)
+      setForgotSent(true)
+    } else if (forgotState.errors?.email) {
+      setForgotEmailError(forgotState.errors.email[0])
+    }
+  }
 
   return (
     <div className={styles.page}>
@@ -359,6 +390,11 @@ export default function AuthPage() {
               >
                 {loginBanner}
               </div>
+              {resetSuccess && (
+                <div className={styles.bannerSuccess}>
+                  Password reset successfully. Please sign in.
+                </div>
+              )}
               <h1 className={styles.title}>Welcome back</h1>
               <p className={styles.subtitle}>Sign in to your estate account.</p>
             </div>
@@ -466,26 +502,36 @@ export default function AuthPage() {
               <p className={styles.subtitle}>Enter your email and we&apos;ll send a reset link.</p>
             </div>
 
-            <form className={styles.form} onSubmit={(e) => {
-              e.preventDefault()
-              const fd = new FormData(e.currentTarget)
-              const val = fd.get("forgot-email") as string
-              if (!val?.trim()) return
-              setForgotSubmittedEmail(val.trim())
-              setForgotSent(true)
-            }} noValidate>
+            <form className={styles.form} action={forgotFormAction} noValidate>
               <label className={styles.field} htmlFor="forgot-email">
                 <span className={styles.label}>Enter Email</span>
                 <input
                   type="email"
                   id="forgot-email"
-                  name="forgot-email"
-                  className={styles.input}
+                  name="email"
+                  className={`${styles.input}${forgotEmailError ? ` ${styles.inputError}` : ""}`}
                   placeholder="you@example.com"
                   required
+                  value={forgotEmail}
+                  onChange={(e) => {
+                    setForgotEmail(e.target.value)
+                    if (forgotEmailError) setForgotEmailError("")
+                  }}
+                  aria-invalid={!!forgotEmailError}
+                  aria-describedby={forgotEmailError ? "forgot-email-error" : undefined}
                 />
+                <span
+                  id="forgot-email-error"
+                  className={styles.errorText}
+                  role="alert"
+                  data-visible={!!forgotEmailError}
+                  aria-hidden={!forgotEmailError}
+                >
+                  <AlertCircle size={14} aria-hidden="true" />
+                  {forgotEmailError}
+                </span>
               </label>
-              <button type="submit" className={styles.submit}>Send reset link</button>
+              <SubmitBtn label="Send reset link" pendingLabel="Sending reset link..." />
             </form>
 
             <p className={styles.switchText}>

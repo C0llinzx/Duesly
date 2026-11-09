@@ -50,3 +50,46 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 })
   }
 }
+
+export async function PATCH(request: Request) {
+  try {
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+    const body = await request.json()
+    const { id, name } = body
+    if (!id || !name?.trim()) {
+      return NextResponse.json({ error: "Invalid request" }, { status: 400 })
+    }
+
+    const zone = await prisma.zone.update({
+      where: { id },
+      data: { name: name.trim() },
+    })
+
+    return NextResponse.json({ ok: true, zone })
+  } catch (error) {
+    console.error("Zones PATCH error:", error)
+    return NextResponse.json({ error: "Something went wrong" }, { status: 500 })
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const session = await getSession()
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+    const body = await request.json()
+    const { id } = body
+    if (!id) {
+      return NextResponse.json({ error: "Invalid request" }, { status: 400 })
+    }
+
+    await prisma.zone.delete({ where: { id } })
+
+    return NextResponse.json({ ok: true })
+  } catch (error) {
+    console.error("Zones DELETE error:", error)
+    return NextResponse.json({ error: "Something went wrong" }, { status: 500 })
+  }
+}

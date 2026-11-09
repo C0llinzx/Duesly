@@ -45,7 +45,6 @@ export default function ShellZone() {
     return () => ctrl.abort()
   }, [])
 
-  // Refetch when navigating back to a dashboard page
   useEffect(() => {
     if (pathname !== prevPath.current) {
       prevPath.current = pathname
@@ -55,7 +54,7 @@ export default function ShellZone() {
   }, [pathname])
 
   const steps = [
-    { num: 1, label: "Set up your estate zones", desc: 'Organise your estate — e.g. "Block A", "Phase 2".', href: "/dashboard/members", done: onboardingCheck.zones },
+    { num: 1, label: "Set up zones", desc: 'Organise your estate — e.g. "Block A", "Phase 2".', href: "/dashboard/setup", done: onboardingCheck.zones },
     { num: 2, label: "Add your houses", desc: "Import or add houses one by one.", href: "/dashboard/members", done: onboardingCheck.units },
     { num: 3, label: "Start collecting dues", desc: "Set the amount, share one link.", href: "/dashboard/collections", done: onboardingCheck.collections },
   ]
@@ -69,7 +68,7 @@ export default function ShellZone() {
 
   return (
     <div className={d.onboardingWidget}>
-      {expanded ? (
+      {expanded && (
         <div className={d.onboardingCard}>
           <div className={d.onboardingCardHeader}>
             <span className={d.onboardingCardTitle}>Getting started</span>
@@ -111,23 +110,22 @@ export default function ShellZone() {
             })}
           </div>
         </div>
-      ) : (
-        <div className={`${d.onboardingPill} ${allDone ? d.onboardingPillDone : ""}`}>
-          <button className={d.onboardingPillMain} onClick={() => hasPending && setExpanded(true)}>
-            {allDone ? <Check size={12} strokeWidth={3} className={d.onboardingPillCheck} />
-              : <span className={d.onboardingPillDot} />}
-            <span>{allDone ? "Getting started · Complete" : `Getting started · ${doneCount} of 3`}</span>
-            {hasPending && <ChevronUp size={14} strokeWidth={2} />}
-          </button>
-          <button
-            className={d.onboardingPillClose}
-            onClick={() => setDismissed(true)}
-            aria-label="Dismiss"
-          >
-            <X size={12} strokeWidth={2} />
-          </button>
-        </div>
       )}
+      <div className={`${d.onboardingPill} ${allDone ? d.onboardingPillDone : ""}`}>
+        <button className={d.onboardingPillMain} onClick={() => hasPending && setExpanded(true)}>
+          {allDone ? <Check size={12} strokeWidth={3} className={d.onboardingPillCheck} />
+            : <span className={d.onboardingPillDot} />}
+          <span>{allDone ? "Getting started · Complete" : `Getting started · ${doneCount} of 3`}</span>
+          {hasPending && <ChevronUp size={14} strokeWidth={2} />}
+        </button>
+        <button
+          className={d.onboardingPillClose}
+          onClick={() => setDismissed(true)}
+          aria-label="Dismiss"
+        >
+          <X size={12} strokeWidth={2} />
+        </button>
+      </div>
     </div>
   )
 }

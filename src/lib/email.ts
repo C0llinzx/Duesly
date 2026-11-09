@@ -159,3 +159,19 @@ export function reminderHtml(params: {
     </div>
   `
 }
+
+export function passwordResetHtml(params: { name: string; resetLink: string }): string {
+  return `
+    <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #111215;">
+      <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 16px;">Reset your Duesly Password</h2>
+      <p>Hi ${params.name},</p>
+      <p>We received a request to reset the password for your Duesly account. Click the button below to choose a new one. This link will expire in 1 hour.</p>
+      <div style="margin: 24px 0;">
+        <a href="${params.resetLink}" style="display: inline-block; padding: 12px 24px; background: #5E6AD2; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600;">Reset Password</a>
+      </div>
+      <p style="font-size: 13px; color: #666; margin-top: 24px;">If you didn't request a password reset, you can safely ignore this email.</p>
+      <hr style="margin: 24px 0; border: none; border-top: 1px solid #eee;" />
+      <p style="color: #999; font-size: 12px;">Duesly — Estate collection made simple.</p>
+    </div>
+  `
+}
