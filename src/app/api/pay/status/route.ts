@@ -28,11 +28,9 @@ export async function GET(request: Request) {
 
   if (outcome === "success") return NextResponse.json({ status: "success" })
   if (outcome === "failed") return NextResponse.json({ status: "failed" })
-  if (outcome === "amount_mismatch") {
-    // Flag for review but do not tell the resident it failed — the charge may have gone
-    // through on the gateway's side. The webhook/admin review resolves this, not this poll.
-    return NextResponse.json({ status: "pending" })
-  }
 
+  // amount_mismatch / currency_mismatch / ineligible: flag for review but do not tell the
+  // resident it failed — the charge may have gone through on the gateway's side. Admin
+  // review (via the PaymentLog entries the recorder just wrote) resolves this, not this poll.
   return NextResponse.json({ status: "pending" })
 }

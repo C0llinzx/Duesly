@@ -18,8 +18,15 @@ export type RecordOutcome =
   | "failed"
   | "pending"
   | "amount_mismatch"
+  | "currency_mismatch"
+  | "ineligible"
   | "not_found"
   | "verify_error"
+
+// This app only ever charges in Naira — Paystack's NGN. If a verify response ever comes back
+// in a different currency (gateway misconfiguration, multi-currency Paystack account), treat
+// it exactly like an amount mismatch: never record it.
+const EXPECTED_CURRENCY = "NGN"
 
 async function safeLog(paymentId: string, event: string, metadata: Record<string, unknown>) {
   try {
@@ -79,6 +86,17 @@ export async function verifyAndRecordPayment(
     return "pending"
   }
 
+  // ── Currency mismatch: do NOT record. Only ever charge/accept NGN. ──
+  if (verified.currency !== EXPECTED_CURRENCY) {
+    console.error(`[${source}] currency mismatch`, { reference, expected: EXPECTED_CURRENCY, received: verified.currency })
+    await safeLog(payment.id, `${source}_currency_mismatch`, {
+      reference,
+      expected: EXPECTED_CURRENCY,
+      received: verified.currency,
+    })
+    return "currency_mismatch"
+  }
+
   // ── Amount mismatch: do NOT record. Spec invariant #4 — never trust the webhook/verify
   // payload's status alone; a mismatched amount must not flip the unit to paid. ──
   const expectedTotal = payment.amountKobo + payment.feeKobo
@@ -98,6 +116,23 @@ export async function verifyAndRecordPayment(
       received: verified.amount,
     })
     return "amount_mismatch"
+  }
+
+  // ── Eligibility recheck: the collection or unit may have been closed/deactivated between
+  // checkout and this verify call. The charge still succeeded on the gateway — flag it for
+  // manual review rather than silently flipping an ineligible unit to paid. ──
+  if (payment.collection.status !== "active" || payment.unit.status !== "active") {
+    console.error(`[${source}] ineligible at verify time`, {
+      reference,
+      collectionStatus: payment.collection.status,
+      unitStatus: payment.unit.status,
+    })
+    await safeLog(payment.id, `${source}_ineligible`, {
+      reference,
+      collectionStatus: payment.collection.status,
+      unitStatus: payment.unit.status,
+    })
+    return "ineligible"
   }
 
   try {

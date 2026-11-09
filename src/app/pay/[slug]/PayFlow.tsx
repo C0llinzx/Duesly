@@ -302,6 +302,9 @@ export default function PayFlow({
                   Continue
                 </button>
               </div>
+              <button className={s.backLink} onClick={() => setStep("due")}>
+                I don&apos;t have an email — continue without one
+              </button>
             </>
           )}
         </div>

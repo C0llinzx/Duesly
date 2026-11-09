@@ -48,7 +48,7 @@ The factory returns the adapter named by `PAYMENT_GATEWAY`. Flow logic (init rou
 ### Initialize (server)
 - Pay action calls `gateway.initialize()`.
 - Amount = server levy per-house figure → minor unit. Reference = unique per attempt (`duesly_{unitId}_{levyId}_{ts}_{rand}`), persisted with status `pending` and metadata `{ estateId, levyId, unitId }`.
-- Email: use the house's email on file; if absent, collect one at the pay step (required for the receipt).
+- Email: use the house's email on file; if absent, offer to collect one at the pay step, but it is **optional** (product decision, revisit post-MVP) — the resident can skip it and still view/download their receipt on the return page. When skipped, the gateway's `email` field falls back to the estate admin's email (Paystack requires one for the transaction); this does not change who the receipt is shown to.
 - Redirect to `authorizationUrl`; `callbackUrl` → the return page.
 - On init failure: specific, honest message + Retry; log the real error server-side; reassure the resident they were **not** charged.
 

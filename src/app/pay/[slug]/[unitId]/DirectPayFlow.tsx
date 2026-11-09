@@ -152,6 +152,9 @@ export default function DirectPayFlow({
                   Continue
                 </button>
               </div>
+              <button className={s.emailBtnSecondary} style={{ marginTop: 8 }} onClick={() => setConfirmed(true)}>
+                I don&apos;t have an email — continue without one
+              </button>
             </div>
           )}
         </div>
